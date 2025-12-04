@@ -1,0 +1,73 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, dev, dev-* ]
+  pull_request:
+    branches: [ main, dev, dev-* ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    services:
+      mongodb:
+        image: mongo:7.0
+        options: >-
+          --health-cmd mongosh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 27017:27017
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Type check (Client)
+        run: npm run type-check
+        continue-on-error: true
+      
+      - name: Type check (Server)
+        run: npm run type-check:server
+        continue-on-error: true
+      
+      - name: Run unit tests
+        run: npm test
+        env:
+          MONGODB_URI: mongodb://localhost:27017/test_db
+          JWT_SECRET: test-secret-key-for-ci
+          NODE_ENV: test
+      
+      - name: Run Selenium tests (mock-based)
+        run: npx vitest run --config vitest.selenium.config.ts
+        env:
+          NODE_ENV: test
+      
+      - name: Build for production
+        run: npm run build
+        continue-on-error: true
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-node-${{ matrix.node-version }}
+          path: |
+            coverage/
+            dist/
+          retention-days: 30

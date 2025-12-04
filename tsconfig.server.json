@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "module": "Node16",
+    "rootDir": "./src/server",
+    "declaration": true,
+    "outDir": "./dist/server",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "moduleResolution": "node16",
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src/server/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "src/client"
+  ]
+}

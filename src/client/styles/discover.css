@@ -1,0 +1,811 @@
+.featured-wrapper {
+  width: 100%;
+  padding: 2rem 0;
+}
+
+.featured-inner {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.featured-title {
+  display: inline-block;
+  padding: 0.75rem 3rem;
+  border-radius: 18px;
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+  color: #f9fafb;
+  font-size: 1.6rem;
+  font-weight: 800;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.35);
+}
+
+.featured-slider {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.featured-card {
+  position: relative;
+}
+
+.pokemon-card {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  background: radial-gradient(circle at top, #fbbf24, #0f172a);
+  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.4);
+}
+
+.pokemon-card-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.pokemon-card-back {
+  border-radius: 18px;
+  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.4);
+}
+
+.slider-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  border-radius: 999px;
+  background: white;
+  padding: 0.5rem;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.3);
+  cursor: pointer;
+}
+
+.dark .slider-button {
+  background: #374151;
+}
+
+.slider-button-left {
+  left: 0.75rem;
+}
+
+.slider-button-right {
+  right: 0.75rem;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.discover-header {
+  max-width: 1200px;
+  margin: 0 auto 1.5rem;
+  text-align: center;
+}
+
+.discover-subtitle {
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+  color: #64748b;
+}
+
+.dark .discover-subtitle {
+  color: #9ca3af;
+}
+
+.discover-toolbar {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.discover-search {
+  flex: 0 0 auto;
+  position: relative;
+  max-width: 600px;
+  width: 100%;
+}
+
+.discover-search-input {
+  width: 100%;
+  border-radius: 999px;
+  border: none;
+  padding: 0.55rem 2.5rem 0.55rem 1rem;
+  font-size: 0.9rem;
+  background: linear-gradient(90deg, #e0f2fe, #bae6fd);
+  color: #0f172a;
+  outline: none;
+}
+
+.discover-search-input::placeholder {
+  color: #64748b;
+}
+
+.discover-search-icon {
+  position: absolute;
+  right: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: #0f172a;
+  pointer-events: none;
+}
+
+.discover-filter-wrapper {
+  position: relative;
+}
+
+.discover-filter-button {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  border: none;
+  padding: 0.55rem 1rem;
+  background: white;
+  color: #0f172a;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.15);
+}
+
+.discover-filter-panel {
+  position: absolute;
+  right: 0;
+  margin-top: 0.5rem;
+  background: white;
+  border-radius: 0.9rem;
+  padding: 0.75rem 1rem 1rem;
+  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.2);
+  min-width: 230px;
+  z-index: 30;
+}
+
+.discover-filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.discover-filter-select {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  background: #e0f2fe;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.discover-sets {
+  width: 100%;
+  margin: 0;
+}
+
+.discover-set-section {
+  margin-bottom: 2.5rem;
+}
+
+.discover-set-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 0.75rem;
+  padding-left: 0.25rem;
+  padding-right: 0.5rem;
+}
+
+.discover-set-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.discover-set-count {
+  font-size: 0.75rem;
+  color: #38bdf8;
+}
+
+.discover-set-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.3rem;
+  padding-left: 0.25rem;
+  padding-right: 0.5rem;
+}
+
+.discover-card-wrapper {
+  width: 100%;
+}
+
+.discover-card-inner {
+  width: 100%;
+  max-width: 230px;
+  margin: 0;
+}
+
+.discover-card-inner .discover-front-card {
+  background: transparent;
+  box-shadow: none;
+}
+
+.discover-card-stat-value {
+  font-size: 0.75rem;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.discover-price-label {
+  font-size: 0.9rem;
+}
+
+.discover-price-value {
+  font-size: 1.3rem;
+  white-space: nowrap;
+}
+
+.discover-empty,
+.discover-error {
+  text-align: center;
+  padding: 3rem 0;
+  color: #64748b;
+}
+
+.discover-error {
+  color: #f97373;
+}
+
+.discover-pagination {
+  margin: 1rem 0 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.discover-pagination-info {
+  font-size: 0.85rem;
+  color: #0f172a;
+}
+
+.trade-request-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.trade-request-panel {
+  background: #f8fafc;
+  border-radius: 18px;
+  max-width: 720px;
+  width: 100%;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4);
+}
+
+.trade-request-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.trade-request-header h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.trade-request-close {
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.trade-request-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 2fr);
+  gap: 1.25rem;
+}
+
+.trade-request-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.trade-request-card img {
+  width: 180px;
+  border-radius: 14px;
+  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.35);
+}
+
+.trade-request-card-info {
+  text-align: center;
+}
+
+.trade-request-card-name {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.trade-request-card-set {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.trade-request-card-owners {
+  font-size: 0.8rem;
+  color: #0ea5e9;
+}
+
+.trade-request-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.trade-request-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.trade-request-select,
+.trade-request-textarea {
+  border-radius: 0.9rem;
+  border: none;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.85rem;
+  background: #e0f2fe;
+  color: #0f172a;
+  outline: none;
+}
+
+.trade-request-textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.trade-request-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.trade-request-cancel {
+  border-radius: 999px;
+  border: none;
+  padding: 0.45rem 1.1rem;
+  background: #cbd5f5;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.trade-request-submit {
+  border-radius: 999px;
+  border: none;
+  padding: 0.5rem 1.4rem;
+  background: linear-gradient(90deg, #0ea5e9, #0284c7);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .trade-request-body {
+    grid-template-columns: 1fr;
+  }
+
+  .trade-request-panel {
+    max-width: 95%;
+  }
+}
+
+.dark .discover-page {
+  background: #020617 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .discover-page * {
+  color: #e2e8f0 !important;
+}
+
+.dark .discover-filter-button,
+.dark .discover-filter-panel,
+.dark .discover-search-input,
+.dark .discover-front-card {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: #334155 !important;
+}
+
+.dark .pokemon-card-back,
+.dark .bg-blue-50 {
+  background: #1e293b !important;
+}
+
+.dark .text-gray-600,
+.dark .text-gray-700,
+.dark .text-gray-800 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-gray-300,
+.dark .text-gray-400,
+.dark .text-gray-500 {
+  color: #cbd5e1 !important;
+}
+
+.dark .discover-search-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.dark .discover-price-value {
+  color: #7dd3fc !important;
+}
+
+.dark .featured-wrapper {
+  background: #0f172a;
+}
+
+.dark .featured-title {
+  color: #f1f5f9;
+  background: linear-gradient(90deg, #0284c7, #0ea5e9);
+}
+
+.dark .pokemon-card {
+  background: radial-gradient(circle at top, #facc15, #020617);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+}
+
+.dark .pokemon-card-back {
+  background: #1e293b;
+}
+
+.dark .discover-header {
+  color: #e2e8f0;
+}
+
+.dark .discover-subtitle {
+  color: #94a3b8;
+}
+
+.dark .discover-search-input {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+.dark .discover-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.dark .discover-search-icon {
+  color: #e2e8f0;
+}
+
+.dark .discover-filter-button {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+.dark .discover-filter-panel {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+}
+
+.dark .discover-filter-label {
+  color: #cbd5e1;
+}
+
+.dark .discover-filter-select {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+.dark .discover-set-title {
+  color: #f1f5f9;
+}
+
+.dark .discover-set-count {
+  color: #7dd3fc;
+}
+
+.dark .discover-set-grid {
+  background: transparent;
+}
+
+.dark .discover-card-inner {
+  background: transparent;
+}
+
+.dark .discover-front-card {
+  background: #1e293b !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+.dark .discover-card-stat-value {
+  color: #e2e8f0;
+}
+
+.dark .discover-price-value {
+  color: #f9fafb;
+}
+
+.dark .discover-price-label {
+  color: #cbd5e1;
+}
+
+.dark .discover-empty {
+  color: #94a3b8;
+}
+
+.dark .discover-error {
+  color: #fca5a5;
+}
+
+.dark .discover-pagination-info {
+  color: #e2e8f0;
+}
+
+.dark .discover-card-inner,
+.dark .discover-filter-panel,
+.dark .discover-toolbar,
+.dark .discover-set-section,
+.dark .discover-set-grid {
+  background: transparent !important;
+}
+
+.dark .pokemon-card-back span,
+.dark .pokemon-card span {
+  color: #ffffff !important;
+}
+
+.dark .pokemon-card-back .bg-white\/90,
+.dark .pokemon-card .bg-white\/90 {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+.flip-card {
+  width: 230px;
+  height: 320px;
+  perspective: 1200px;
+  margin: 0 auto;
+}
+
+.flip-card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(.25,.8,.25,1);
+}
+
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+
+.flip-card-front {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+}
+
+.flip-card-front img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.flip-card-back {
+  transform: rotateY(180deg);
+  background: #f3f8ff !important;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #dbeafe;
+}
+
+
+.flip-card-back h3 {
+  font-size: 12px !important;
+  text-align: center;
+  margin-bottom: 4px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+
+.owner-line {
+  font-size: 9px !important;
+  text-align: center;
+  margin-bottom: 4px;
+  color: #475569;
+}
+
+.card-attrs {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.attr-box {
+  background: #eef6ff;
+  border-radius: 8px;
+  padding: 6px;
+  border: 1px solid #dbeafe;
+  text-align: center;
+}
+
+.attr-label {
+  font-size: 9px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.attr-value {
+  font-size: 10px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.card-back-section {
+  background: #eef6ff;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid #dbeafe;
+  margin-bottom: 6px;
+}
+
+.card-back-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 3px;
+}
+
+
+.price-box {
+  background: #ffffff;
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid #dbeafe;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.price-label {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.price-value {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0284c7;
+}
+
+.price-box.gold-border {
+  border: 2px solid #eab308 !important;
+  background: #fff7d6 !important;
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+}
+
+.trade-btn {
+  width: 100%;
+  padding: 6px 0;
+  background: #0284c7;
+  color: white;
+  font-size: 10px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dark .flip-card-back {
+  background: #1e293b !important;
+}
+.dark .card-back-section {
+  background: #0f172a;
+  border-color: #334155;
+}
+.dark .attr-box {
+  background: #1e293b;
+  border-color: #334155;
+}
+.dark .attr-label {
+  color: #94a3b8;
+}
+.dark .attr-value {
+  color: #ffffff;
+}
+.dark .owner-line {
+  color: #cbd5e1 !important;
+}
+.dark .price-box {
+  background: #1e293b;
+  border-color: #334155;
+}
+.dark .price-value {
+  color: #7dd3fc;
+}
+.dark .trade-btn {
+  background: #0ea5e9;
+}
+
+.discover-pagination {
+  margin: 1.5rem 0 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+}
+
+.discover-pagination button {
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+  color: white;
+  font-weight: 700;
+  padding: 6px 18px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+
+.discover-pagination button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.discover-pagination button:not(:disabled):hover {
+  transform: scale(1.05);
+}
+
+.discover-pagination-info {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.dark .discover-pagination-info {
+  color: #e2e8f0 !important;
+}
+
+.dark .discover-pagination button {
+  background: linear-gradient(90deg, #0284c7, #0ea5e9);
+}

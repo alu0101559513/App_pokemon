@@ -1,0 +1,12 @@
+import './individuales/user.spec';
+import './individuales/usercard.spec';
+import './individuales/trade.spec';
+import './individuales/card.spec';
+import './individuales/notification.spec';
+import './individuales/preferences.spec';
+import './individuales/pokemon.spec';
+import './individuales/sync.spec';
+import './individuales/advanced-features.spec';
+import './individuales/advanced-usercards.spec';
+import './individuales/advanced-trades.spec';
+import './e2e/trading-flow.spec';
