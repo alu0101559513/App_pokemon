@@ -1,5 +1,5 @@
-import React from "react";
-import "../../styles/trade_modals.css"; 
+import React from 'react';
+import '../../styles/trade_modals.css';
 
 interface Props {
   visible: boolean;
@@ -25,11 +25,11 @@ const TradeModeModal: React.FC<Props> = ({
 
         <div className="trade-mode-options">
           <button className="trade-mode-btn msg" onClick={onSendMessage}>
-             Enviar mensaje
+            Enviar mensaje
           </button>
 
           <button className="trade-mode-btn card" onClick={onSendCard}>
-             Enviar carta
+            Enviar carta
           </button>
         </div>
 
@@ -42,4 +42,3 @@ const TradeModeModal: React.FC<Props> = ({
 };
 
 export default TradeModeModal;
-

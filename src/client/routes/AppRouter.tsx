@@ -1,25 +1,21 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import StartPage from "../pages/StartPage";
-import SignUpPage from "../pages/SignUpPage";
-import SignInPage from "../pages/SignInPage";
-import HomePage from "../pages/HomePage";
-import ProfilePage from "../pages/ProfilePage";
-import FriendsPage from "../pages/FriendsPage";
-import CollectionPage from "../pages/CollectionPage";
-import DiscoverTradePage from "../pages/DiscoverTradePage";
-import TradeRequestsPage from "../pages/TradeRequestPage";
-import TradePage from "../pages/TradePage";
-import CreateTradeRoomPage from "../pages/CreateRoomPage";
-import OpenPackPage from "../pages/OpenPackPage";
-import SearchPage from "../pages/SearchPage";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import StartPage from '../pages/StartPage';
+import HomePage from '../pages/HomePage';
+import ProfilePage from '../pages/ProfilePage';
+import FriendsPage from '../pages/FriendsPage';
+import CollectionPage from '../pages/CollectionPage';
+import DiscoverTradePage from '../pages/DiscoverTradePage';
+import TradeRequestsPage from '../pages/TradeRequestPage';
+import TradePage from '../pages/TradePage';
+import CreateTradeRoomPage from '../pages/CreateRoomPage';
+import OpenPackPage from '../pages/OpenPackPage';
+import SearchPage from '../pages/SearchPage';
 
 const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<StartPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/login" element={<SignInPage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/collection" element={<CollectionPage />} />
         <Route path="/search" element={<SearchPage />} />

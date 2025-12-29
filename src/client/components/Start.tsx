@@ -1,69 +1,121 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
-const Start: React.FC = () => {
+interface StartProps {
+  onStart?: () => void;
+}
+
+const Start: React.FC<StartProps> = ({ onStart }) => {
   const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen bg-sky-50 flex flex-col items-center text-gray-900 px-6 py-16 dark:bg-gray-900 dark:text-gray-100">
-      <div className="flex-1 flex flex-col items-center justify-center gap-16 max-w-6xl w-full">
-        {/* Logo y Slogan */}
-        <div className="flex flex-col items-center gap-8">
+    <section
+      className="
+        flex flex-col items-center
+        px-6 py-20
+        text-gray-900 dark:text-gray-100
+
+        bg-[radial-gradient(900px_500px_at_50%_-200px,rgba(48,120,211,0.06),transparent_60%)]
+        dark:bg-[radial-gradient(900px_500px_at_50%_-200px,rgba(48,120,211,0.10),transparent_60%)]
+      "
+    >
+      <div className="flex flex-col items-center justify-center gap-20 max-w-6xl w-full">
+        <div className="flex flex-col items-center gap-6 text-center">
           <img
             src="/logo.png"
             alt="Cards AMI Logo"
-            className="w-56 drop-shadow-lg"
+            className="w-48 drop-shadow-lg"
           />
-          <h1 className="text-5xl font-extrabold text-sky-700 text-center dark:text-sky-400">
-            {t("start.titulo")}
+
+          <h1 className="text-5xl md:text-6xl font-extrabold text-sky-700 dark:text-sky-400">
+            {t('start.title', 'Welcome to Cards AMI')}
           </h1>
-          <p className="text-lg text-gray-600 text-center max-w-2xl dark:text-gray-400">
-            {t("start.subtitulo")}
+
+          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl">
+            {t(
+              'start.subtitle',
+              'Collect, trade, and explore the world of Pokémon cards.'
+            )}
           </p>
+
+          <button
+            onClick={onStart}
+            className="
+              mt-2
+              bg-gradient-to-r
+              from-sky-600
+              to-blue-600
+              text-white
+              font-extrabold
+              py-4 px-14
+              rounded-lg
+              border border-[rgba(212,175,55,0.45)]
+              shadow-[0_10px_22px_rgba(48,120,211,0.35)]
+              hover:from-sky-700 hover:to-blue-700
+              hover:shadow-[0_12px_26px_rgba(212,175,55,0.25)]
+              active:scale-[0.98]
+              transition
+              text-lg
+            "
+          >
+            {t('start.getStarted', 'Get Started')}
+          </button>
         </div>
 
-        {/* Secciones de características */}
         <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8 w-full px-6">
-          {/* Colecciona */}
-          <div className="bg-white rounded-2xl shadow-md p-8 border border-sky-100 text-center hover:shadow-lg transition dark:bg-gray-800 dark:border-gray-700">
+          <div
+            className="
+              bg-white rounded-2xl p-8 text-center
+              border border-sky-100
+              shadow-md hover:shadow-lg transition
+              dark:bg-gray-800 dark:border-gray-700
+            "
+          >
             <h3 className="text-xl font-bold text-sky-700 mb-3 dark:text-sky-400">
-              {t("start.colecciona")}
+              {t('start.collect', 'Collect')}
             </h3>
-            <p className="text-gray-600 text-base dark:text-gray-400">
-              {t("start.coleccionaDesc")}
+            <p className="text-gray-600 dark:text-gray-400">
+              {t(
+                'start.collectDesc',
+                'Build your collection of Pokémon cards.'
+              )}
             </p>
           </div>
 
-          {/* Intercambia */}
-          <div className="bg-white rounded-2xl shadow-md p-8 border border-sky-100 text-center hover:shadow-lg transition dark:bg-gray-800 dark:border-gray-700">
+          <div
+            className="
+              bg-white rounded-2xl p-8 text-center
+              border border-sky-100
+              shadow-md hover:shadow-lg transition
+              dark:bg-gray-800 dark:border-gray-700
+            "
+          >
             <h3 className="text-xl font-bold text-sky-700 mb-3 dark:text-sky-400">
-              {t("start.intercambia")}
+              {t('start.trade', 'Trade')}
             </h3>
-            <p className="text-gray-600 text-base dark:text-gray-400">
-              {t("start.intercambiaDesc")}
+            <p className="text-gray-600 dark:text-gray-400">
+              {t('start.tradeDesc', 'Exchange cards with other collectors.')}
             </p>
           </div>
 
-          {/* Explora */}
-          <div className="bg-white rounded-2xl shadow-md p-8 border border-sky-100 text-center hover:shadow-lg transition dark:bg-gray-800 dark:border-gray-700">
+          <div
+            className="
+              bg-white rounded-2xl p-8 text-center
+              border border-sky-100
+              shadow-md hover:shadow-lg transition
+              dark:bg-gray-800 dark:border-gray-700
+            "
+          >
             <h3 className="text-xl font-bold text-sky-700 mb-3 dark:text-sky-400">
-              {t("start.explora")}
+              {t('start.explore', 'Explore')}
             </h3>
-            <p className="text-gray-600 text-base dark:text-gray-400">
-              {t("start.exploraDesc")}
+            <p className="text-gray-600 dark:text-gray-400">
+              {t('start.exploreDesc', 'Discover rare and unique cards.')}
             </p>
           </div>
         </div>
-
-        {/* Botón principal */}
-        <a
-          href="/signup"
-          className="inline-block bg-gradient-to-r from-sky-600 to-blue-600 text-white font-semibold py-4 px-12 rounded-lg shadow-md hover:from-sky-700 hover:to-blue-700 transition text-lg"
-        >
-          {t("start.empezar")}
-        </a>
       </div>
-    </div>
+    </section>
   );
 };
 

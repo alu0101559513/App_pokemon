@@ -1,13 +1,13 @@
 /**
  * @file types.ts
  * @description Definiciones de tipos TypeScript para la aplicación cliente
- * 
+ *
  * Incluye interfaces para:
  * - Cartas Pokémon y sus propiedades
  * - Usuarios y datos de perfil
  * - Trading y transacciones
  * - Respuestas de API
- * 
+ *
  * @module types
  */
 
@@ -114,7 +114,7 @@ export interface UserOwnedCard {
   name: string;
   image: string;
   rarity: string;
-  forTrade: boolean;       
+  forTrade: boolean;
 }
 
 export type TradeStatus = 'pending' | 'accepted' | 'rejected' | 'completed';

@@ -1,106 +1,172 @@
-import React, { useEffect, useState } from "react";
-import { initSocket } from "../socket";
-import Header from "@/components/Header/Header";
-import Footer from "@/components/Footer";
-import "../styles/friends.css";
-import { authService } from "../services/authService";
-import { useTranslation } from "react-i18next";
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import Header from '@/components/Header/Header';
+import Footer from '@/components/Footer';
+import { initSocket } from '../socket';
+import { authService } from '../services/authService';
+import '../styles/friends.css';
+import { useTranslation } from 'react-i18next';
+
+interface User {
+  id: string;
+  username: string;
+  profileImage?: string;
+}
+
+interface Friend {
+  _id: string;
+  username: string;
+  profileImage?: string;
+}
+
+interface Request {
+  userId: string;
+  username: string;
+  profileImage?: string;
+}
+
+interface SentRequest {
+  _id: string;
+  username: string;
+  profileImage?: string;
+}
+
+interface Message {
+  from: string;
+  to: string;
+  text: string;
+  createdAt?: string;
+}
 
 const FriendsPage: React.FC = () => {
   const { t } = useTranslation();
-  const tt = (key: string, fallback: string) => {
-    const v = t(key);
-    return v === key ? fallback : v;
-  };
+  const user = authService.getUser() as User | null;
+  const token = localStorage.getItem('token');
+  if (!user || !token) return null;
 
-  const [user, setUser] = useState<any>(null);
-  const [socket, setSocket] = useState<any>(null);
-
-  const [search, setSearch] = useState("");
+  const [view, setView] = useState<'chat' | 'requests'>('chat');
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [received, setReceived] = useState<Request[]>([]);
+  const [sent, setSent] = useState<SentRequest[]>([]);
+  const [search, setSearch] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [friendRequests, setFriendRequests] = useState<any[]>([]);
-  const [sentRequests, setSentRequests] = useState<any[]>([]);
-  const [friends, setFriends] = useState<any[]>([]);
-  const [selectedFriend, setSelectedFriend] = useState<any | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
-  const [message, setMessage] = useState("");
+  const [activeFriend, setActiveFriend] = useState<Friend | null>(null);
+  const [socket, setSocket] = useState<any>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [messageInput, setMessageInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [toast, setToast] = useState<{
+    visible: boolean;
+    message: string;
+    action?: () => void;
+  }>({
+    visible: false,
+    message: '',
+  });
 
-  const token = localStorage.getItem("token") || "";
-  const userId = user?.id;
+  const loadAll = useCallback(async () => {
+    const headers = { Authorization: `Bearer ${token}` };
+
+    try {
+      const [f, r, s] = await Promise.all([
+        fetch(`http://localhost:3000/friends/user/${user.id}`, { headers }).then(
+          (r) => r.json()
+        ),
+        fetch(`http://localhost:3000/friends/requests/user/${user.id}`, {
+          headers,
+        }).then((r) => r.json()),
+        fetch(`http://localhost:3000/friends/requests/sent/${user.id}`, {
+          headers,
+        }).then((r) => r.json()),
+      ]);
+
+      setFriends(f.friends || f.data?.friends || []);
+      setReceived(r.requests || r.data?.requests || []);
+      setSent(s.sent || s.data?.sent || []);
+    } catch (err) {
+      console.error('Error loading friends:', err);
+      setToast({
+        visible: true,
+        message: 'Error al cargar solicitudes',
+      });
+    }
+  }, [token, user.id]);
 
   useEffect(() => {
-    const u = authService.getUser();
-    setUser(u);
-
-    const s = initSocket();
-    if (s) setSocket(s);
-
-    return () => {
-      setSocket(null);
-    };
+    loadAll();
   }, []);
 
   useEffect(() => {
-    if (!userId) return;
+    const s = initSocket();
+    if (!s) return;
 
-    const storedToken = localStorage.getItem("token") || "";
+    setSocket(s);
 
-    const fetchData = async () => {
-      const r1 = await fetch(`http://localhost:3000/friends/user/${userId}`, {
-        headers: { Authorization: `Bearer ${storedToken}` },
-      });
-      const friendsData = await r1.json();
-
-      const r2 = await fetch(
-        `http://localhost:3000/friends/requests/user/${userId}`,
-        { headers: { Authorization: `Bearer ${storedToken}` } }
-      );
-      const reqData = await r2.json();
-
-      const r3 = await fetch(
-        `http://localhost:3000/friends/requests/sent/${userId}`,
-        { headers: { Authorization: `Bearer ${storedToken}` } }
-      );
-      const sentData = await r3.json();
-
-      setFriends(friendsData.friends || []);
-      setFriendRequests(reqData.requests || []);
-      setSentRequests(sentData.sent || []);
+    const onMessage = (msg: Message) => {
+      if (
+        activeFriend &&
+        (msg.from === activeFriend._id || msg.to === activeFriend._id)
+      ) {
+        setMessages((prev) => [...prev, msg]);
+      }
     };
 
-    fetchData();
-  }, [userId]);
+    const onTyping = ({ from }: any) => {
+      if (activeFriend && from === activeFriend._id) {
+        setIsTyping(true);
+      }
+    };
 
-  const reloadFriends = async () => {
-    if (!userId) return;
+    const onStopTyping = ({ from }: any) => {
+      if (activeFriend && from === activeFriend._id) {
+        setIsTyping(false);
+      }
+    };
 
-    const storedToken = localStorage.getItem("token") || "";
+    s.on('privateMessage', onMessage);
+    s.on('typing', onTyping);
+    s.on('stopTyping', onStopTyping);
 
-    const r1 = await fetch(`http://localhost:3000/friends/user/${userId}`, {
-      headers: { Authorization: `Bearer ${storedToken}` },
-    });
-    const friendsData = await r1.json();
+    return () => {
+      s.off('privateMessage', onMessage);
+      s.off('typing', onTyping);
+      s.off('stopTyping', onStopTyping);
+    };
+  }, [activeFriend?._id]);
 
-    const r2 = await fetch(
-      `http://localhost:3000/friends/requests/user/${userId}`,
-      { headers: { Authorization: `Bearer ${storedToken}` } }
-    );
-    const reqData = await r2.json();
+  useEffect(() => {
+    const s = initSocket();
+    if (!s) return;
 
-    const r3 = await fetch(
-      `http://localhost:3000/friends/requests/sent/${userId}`,
-      { headers: { Authorization: `Bearer ${storedToken}` } }
-    );
-    const sentData = await r3.json();
+    // Estos listeners se registran una sola vez y escuchan independientemente
+    const onFriendRequestReceived = () => {
+      loadAll();
+    };
 
-    setFriends(friendsData.friends || []);
-    setFriendRequests(reqData.requests || []);
-    setSentRequests(sentData.sent || []);
-  };
+    const onFriendRequestAccepted = () => {
+      loadAll();
+    };
 
-  const loadChatHistory = async (friendId: string) => {
+    const onFriendRequestRejected = () => {
+      loadAll();
+    };
+
+    s.on('friendRequestReceived', onFriendRequestReceived);
+    s.on('friendRequestAccepted', onFriendRequestAccepted);
+    s.on('friendRequestRejected', onFriendRequestRejected);
+
+    return () => {
+      s.off('friendRequestReceived', onFriendRequestReceived);
+      s.off('friendRequestAccepted', onFriendRequestAccepted);
+      s.off('friendRequestRejected', onFriendRequestRejected);
+    };
+  }, [loadAll]);
+
+  const openChat = async (friend: Friend) => {
+    setActiveFriend(friend);
+    setIsTyping(false);
+
     const r = await fetch(
-      `http://localhost:3000/friends/messages/${friendId}`,
+      `http://localhost:3000/friends/messages/${friend._id}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -109,21 +175,158 @@ const FriendsPage: React.FC = () => {
     setMessages(data.messages || []);
   };
 
-  useEffect(() => {
-    if (!socket) return;
+  const sendMessage = () => {
+    if (!socket || !activeFriend || !messageInput.trim()) return;
 
-    const handler = (msg: any) => {
-      if (
-        selectedFriend &&
-        (msg.from === selectedFriend._id || msg.to === selectedFriend._id)
-      ) {
-        setMessages((prev) => [...prev, msg]);
+    socket.emit('privateMessage', {
+      from: user.id,
+      to: activeFriend._id,
+      text: messageInput,
+    });
+
+    socket.emit('stopTyping', { to: activeFriend._id });
+    setMessageInput('');
+  };
+
+  const accept = async (id: string) => {
+    try {
+      const res = await fetch(`http://localhost:3000/friends/accept/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        setToast({
+          visible: true,
+          message: errorData.error || 'Error al aceptar solicitud',
+        });
+        return;
       }
-    };
 
-    socket.on("privateMessage", handler);
-    return () => socket.off("privateMessage", handler);
-  }, [socket, selectedFriend]);
+      loadAll();
+    } catch (err) {
+      setToast({
+        visible: true,
+        message: 'Error en la conexión',
+      });
+    }
+  };
+
+  const reject = async (id: string) => {
+    try {
+      const res = await fetch(`http://localhost:3000/friends/reject/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        setToast({
+          visible: true,
+          message: errorData.error || 'Error al rechazar solicitud',
+        });
+        return;
+      }
+
+      loadAll();
+    } catch (err) {
+      setToast({
+        visible: true,
+        message: 'Error en la conexión',
+      });
+    }
+  };
+
+  const cancel = async (id: string) => {
+    try {
+      const res = await fetch(`http://localhost:3000/friends/requests/cancel/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        setToast({
+          visible: true,
+          message: errorData.error || 'Error al cancelar solicitud',
+        });
+        return;
+      }
+
+      loadAll();
+    } catch (err) {
+      setToast({
+        visible: true,
+        message: 'Error en la conexión',
+      });
+    }
+  };
+
+  const sendFriendRequest = async (id: string) => {
+    try {
+      const res = await fetch(`http://localhost:3000/friends/request/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        setToast({
+          visible: true,
+          message: errorData.error || 'Error al enviar solicitud',
+        });
+        return;
+      }
+
+      setToast({
+        visible: true,
+        message: 'Solicitud enviada',
+      });
+      loadAll();
+    } catch (err) {
+      setToast({
+        visible: true,
+        message: 'Error en la conexión',
+      });
+    }
+  };
+
+  const showConfirmToast = (message: string, onConfirm: () => void) => {
+    setToast({
+      visible: true,
+      message: t('friends.confirmRemove', { username: message }),
+      action: onConfirm,
+    });
+  };
+
+  const removeFriend = (friend: Friend) => {
+    showConfirmToast(friend.username, async () => {
+      await fetch(`http://localhost:3000/friends/remove/${friend._id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setToast({ visible: false, message: '' });
+      setActiveFriend(null);
+      setMessages([]);
+      loadAll();
+    });
+  };
 
   const handleSearch = async () => {
     if (!search.trim()) return;
@@ -131,320 +334,263 @@ const FriendsPage: React.FC = () => {
     const r = await fetch(`http://localhost:3000/users/search/${search}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-
     setSearchResults(await r.json());
   };
 
-  const sendFriendRequest = async (friendId: string) => {
-    await fetch(`http://localhost:3000/friends/request/${friendId}`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    reloadFriends();
-  };
-
-  const acceptFriendRequest = async (otherUserId: string) => {
-    await fetch(`http://localhost:3000/friends/accept/${otherUserId}`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    reloadFriends();
-  };
-
-  const rejectFriendRequest = async (otherUserId: string) => {
-    await fetch(`http://localhost:3000/friends/reject/${otherUserId}`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    reloadFriends();
-  };
-
-  const cancelSentRequest = async (friendIdentifier: string) => {
-    await fetch(
-      `http://localhost:3000/friends/requests/cancel/${friendIdentifier}`,
-      {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    reloadFriends();
-  };
-
-  const removeFriend = async (friendIdentifier: string) => {
-    if (
-      !confirm(
-        tt(
-          "friends.confirmRemove",
-          "¿Eliminar a este amigo?"
-        )
-      )
-    )
-      return;
-
-    await fetch(`http://localhost:3000/friends/remove/${friendIdentifier}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    reloadFriends();
-  };
-
-  const sendPrivateMessage = () => {
-    if (!selectedFriend || !message.trim() || !userId || !socket) return;
-
-    const msg = { from: userId, to: selectedFriend._id, text: message };
-
-    socket.emit("privateMessage", msg);
-    setMessages((prev) => [...prev, msg]);
-    setMessage("");
-  };
-
-  const openChat = async (friend: any) => {
-    setSelectedFriend(friend);
-    await loadChatHistory(friend._id);
-  };
-
   return (
-    <div className="friends-container">
+    <div className="friendsPage">
       <Header />
 
-      <main className="friends-main">
-        <h1 className="friends-title">
-          {tt("friends.title", "Amigos")}
-        </h1>
+      <main className="friendsMain">
+        <h1 className="friendsTitle">{t('friends.title')}</h1>
 
-        <div className="friends-columns-4">
-          <div className="col-search">
-            <section className="friends-panel">
-              <h2 className="panel-title">
-                {tt("friends.searchTitle", "Buscar usuarios")}
-              </h2>
+        <div className="friendsTabs">
+          <button
+            className={view === 'chat' ? 'isActive' : ''}
+            onClick={() => setView('chat')}
+          >
+            {t('friends.myFriends')}
+          </button>
+          <button
+            className={view === 'requests' ? 'isActive' : ''}
+            onClick={() => setView('requests')}
+          >
+            {t('friends.requests')}
+          </button>
+        </div>
 
-              <input
-                className="input-box"
-                placeholder={tt(
-                  "friends.searchPlaceholder",
-                  "Buscar por nombre..."
-                )}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+        {view === 'requests' && (
+          <div className="trade-requests-container">
+            <div className="trade-requests-main">
+              <div className="trade-requests-columns">
+                <section className="trade-panel">
+                  <h3 className="trade-panel-title">
+                    {t('friends.searchUsers')}
+                  </h3>
 
-              <button className="btn-blue" onClick={handleSearch}>
-                {tt("friends.searchButton", "Buscar")}
-              </button>
-
-              <div className="results-list">
-                {searchResults.map((u) => (
-                  <div key={u._id} className="result-row">
-                    <span>{u.username}</span>
-                    <button
-                      className="btn-blue-small"
-                      onClick={() => sendFriendRequest(u._id)}
-                    >
-                      {tt("friends.addButton", "Añadir")}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
-
-          <div className="col-requests">
-            <section className="friends-panel">
-              <h2 className="panel-title">
-                {tt(
-                  "friends.receivedTitle",
-                  "Solicitudes recibidas"
-                )}
-              </h2>
-
-              {friendRequests.length === 0 ? (
-                <p className="no-requests">
-                  {tt(
-                    "friends.noReceivedRequests",
-                    "No tienes solicitudes."
-                  )}
-                </p>
-              ) : (
-                friendRequests.map((req) => (
-                  <div key={req.requestId} className="result-row">
-                    <span>{req.username}</span>
-
-                    <div className="request-actions">
-                      <button
-                        className="btn-blue-small"
-                        onClick={() =>
-                          acceptFriendRequest(req.userId)
-                        }
-                      >
-                        {tt("friends.accept", "Aceptar")}
-                      </button>
-
-                      <button
-                        className="btn-gray-small"
-                        onClick={() =>
-                          rejectFriendRequest(req.userId)
-                        }
-                      >
-                        {tt("friends.reject", "Rechazar")}
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </section>
-
-            <section className="friends-panel">
-              <h2 className="panel-title">
-                {tt(
-                  "friends.sentTitle",
-                  "Solicitudes enviadas"
-                )}
-              </h2>
-
-              {sentRequests.length === 0 ? (
-                <p className="no-requests">
-                  {tt(
-                    "friends.noSentRequests",
-                    "Ninguna solicitud enviada."
-                  )}
-                </p>
-              ) : (
-                sentRequests.map((req) => (
-                  <div key={req._id} className="result-row">
-                    <span>{req.username}</span>
-                    <button
-                      className="btn-gray-small"
-                      onClick={() =>
-                        cancelSentRequest(req._id)
-                      }
-                    >
-                      {tt(
-                        "friends.cancelRequest",
-                        "Cancelar"
-                      )}
-                    </button>
-                  </div>
-                ))
-              )}
-            </section>
-          </div>
-
-          <div className="col-friends">
-            <section className="friends-panel">
-              <h2 className="panel-title">
-                {tt("friends.myFriends", "Mis amigos")}
-              </h2>
-
-              {friends.length === 0 ? (
-                <p className="no-requests">
-                  {tt("friends.noFriends", "No tienes amigos.")}
-                </p>
-              ) : (
-                friends.map((friend) => (
-                  <div key={friend._id} className="result-row">
-                    <span>{friend.username}</span>
-
-                    <div className="request-actions">
-                      <button
-                        className="btn-gray-small"
-                        onClick={() =>
-                          removeFriend(friend._id)
-                        }
-                      >
-                        {tt("friends.remove", "Eliminar")}
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </section>
-          </div>
-
-          <div className="col-chat">
-            <section className="friends-panel chat-panel">
-              <h2 className="panel-title">
-                {tt("friends.chatTitle", "Chat")}
-              </h2>
-
-              <div className="friends-list">
-                {friends.map((friend) => (
-                  <button
-                    key={friend._id}
-                    className={
-                      selectedFriend?._id === friend._id
-                        ? "friend-button active"
-                        : "friend-button"
-                    }
-                    onClick={() => openChat(friend)}
-                  >
-                    {friend.username}
-                  </button>
-                ))}
-              </div>
-
-              <div className="chat-window">
-                {!selectedFriend ? (
-                  <p className="no-friend-selected">
-                    {tt(
-                      "friends.selectFriend",
-                      "Selecciona un amigo"
-                    )}
-                  </p>
-                ) : (
-                  <div className="messages-list">
-                    {messages.map((msg, i) => (
-                      <div
-                        key={i}
-                        className={`chat-message-row ${
-                          msg.from === userId ? "self" : "other"
-                        }`}
-                      >
-                        <div
-                          className={`chat-bubble ${
-                            msg.from === userId ? "self" : "other"
-                          }`}
-                        >
-                          {msg.from !== userId && (
-                            <p className="sender-name">
-                              {selectedFriend.username}
-                            </p>
-                          )}
-                          <p>{msg.text}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {selectedFriend && (
-                <div className="chat-input-row">
                   <input
-                    className="input-box"
-                    placeholder={tt(
-                      "friends.writeMessage",
-                      "Escribe un mensaje..."
-                    )}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    className="discover-search-input"
+                    placeholder={t('friends.searchPlaceholder')}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                   />
 
+                  <button className="btn-blue-small" onClick={handleSearch}>
+                    {t('friends.search')}
+                  </button>
+
+                  {searchResults.length === 0 ? null : (
+                    <div className="trade-list">
+                      {searchResults.map((u) => (
+                        <div key={u._id} className="friendUserRow">
+                          <div className="friendUserInfo">
+                            <img
+                              src={u.profileImage || '/icono.png'}
+                              alt={u.username}
+                              className="friendUserAvatar"
+                            />
+                            <span className="friendUserName">{u.username}</span>
+                          </div>
+
+                          <div className="friendUserActions">
+                            <button
+                              className="btn-accent-small"
+                              onClick={() => sendFriendRequest(u._id)}
+                            >
+                              {t('friends.addFriend')}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+
+                <section className="trade-panel">
+                  <h3 className="trade-panel-title">{t('friends.received')}</h3>
+
+                  {received.length === 0 ? (
+                    <div className="trade-empty">{t('friends.noRequests')}</div>
+                  ) : (
+                    <div className="trade-list">
+                      {received.map((r) => (
+                        <div key={r.userId} className="friendUserRow">
+                          <div className="friendUserInfo">
+                            <img
+                              src={r.profileImage || '/icono.png'}
+                              alt={r.username}
+                              className="friendUserAvatar"
+                            />
+                            <span className="friendUserName">{r.username}</span>
+                          </div>
+
+                          <div className="friendUserActions">
+                            <button
+                              className="btn-blue-small"
+                              onClick={() => accept(r.userId)}
+                            >
+                              {t('friends.accept')}
+                            </button>
+                            <button
+                              className="btn-red-small"
+                              onClick={() => reject(r.userId)}
+                            >
+                              {t('friends.reject')}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+
+                <section className="trade-panel">
+                  <h3 className="trade-panel-title">{t('friends.sent')}</h3>
+
+                  {sent.length === 0 ? (
+                    <div className="trade-empty">
+                      {t('friends.noSentRequests')}
+                    </div>
+                  ) : (
+                    <div className="trade-list">
+                      {sent.map((r) => (
+                        <div key={r._id} className="friendUserRow">
+                          <div className="friendUserInfo">
+                            <img
+                              src={r.profileImage || '/icono.png'}
+                              alt={r.username}
+                              className="friendUserAvatar"
+                            />
+                            <span className="friendUserName">{r.username}</span>
+                          </div>
+
+                          <div className="friendUserActions">
+                            <button
+                              className="btn-gray-small"
+                              onClick={() => cancel(r._id)}
+                            >
+                              {t('friends.cancel')}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {view === 'chat' && (
+          <div className="friendsChatLayout">
+            <aside className="friendsList">
+              <h3>{t('friends.myFriends')}</h3>
+              {friends.map((f) => (
+                <div
+                  key={f._id}
+                  className={`friendRow ${activeFriend?._id === f._id ? 'active' : ''}`}
+                  onClick={() => openChat(f)}
+                >
+                  <img src={f.profileImage || '/icono.png'} />
+                  <span>{f.username}</span>
+
                   <button
-                    className="btn-send"
-                    onClick={sendPrivateMessage}
+                    className="removeFriendBtn"
+                    title={t('friends.removeFriend')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeFriend(f);
+                    }}
                   >
-                    {tt("friends.send", "Enviar")}
+                    ✕
                   </button>
                 </div>
+              ))}
+            </aside>
+
+            <section className="friendsChat">
+              {!activeFriend ? (
+                <div className="chatEmpty">{t('friends.selectFriend')}</div>
+              ) : (
+                <>
+                  <header className="chatHeader">
+                    <strong>{activeFriend.username}</strong>
+                  </header>
+
+                  <div className="chatMessages">
+                    {messages.map((m, i) => (
+                      <div
+                        key={i}
+                        className={`chatBubble ${m.from === user.id ? 'self' : 'other'}`}
+                      >
+                        {m.text}
+                      </div>
+                    ))}
+
+                    {isTyping && (
+                      <div className="chatBubble other typingBubble">
+                        <span className="typingDot">.</span>
+                        <span className="typingDot">.</span>
+                        <span className="typingDot">.</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="chatComposer">
+                    <textarea
+                      placeholder={t('friends.writeMessage')}
+                      value={messageInput}
+                      onChange={(e) => {
+                        setMessageInput(e.target.value);
+                        socket?.emit('typing', { to: activeFriend._id });
+                        clearTimeout((window as any)._typingTimeout);
+                        (window as any)._typingTimeout = setTimeout(() => {
+                          socket?.emit('stopTyping', { to: activeFriend._id });
+                        }, 700);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          sendMessage();
+                        }
+                      }}
+                    />
+                    <button
+                      onClick={sendMessage}
+                      disabled={!messageInput.trim()}
+                    >
+                      {t('friends.send')}
+                    </button>
+                  </div>
+                </>
               )}
             </section>
           </div>
-        </div>
+        )}
       </main>
 
       <Footer />
+      {toast.visible && (
+        <div className="toastOverlay">
+          <div className="toastBox">
+            <p>{toast.message}</p>
+
+            <div className="toastActions">
+              <button
+                className="toastCancel"
+                onClick={() => setToast({ visible: false, message: '' })}
+              >
+                {t('common.cancel')}
+              </button>
+
+              <button className="toastConfirm" onClick={toast.action}>
+                {t('friends.remove')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

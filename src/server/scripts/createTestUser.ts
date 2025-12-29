@@ -7,7 +7,9 @@ dotenv.config({ path: './config/dev.env' });
 
 async function createTestUser() {
   try {
-    await mongoose.connect(process.env.MONGODB_URL || 'mongodb://localhost:27017/test');
+    await mongoose.connect(
+      process.env.MONGODB_URL || 'mongodb://localhost:27017/test'
+    );
     console.log('Connected to MongoDB');
 
     // Verificar si el usuario ya existe
@@ -34,13 +36,13 @@ async function createTestUser() {
         notifications: {
           trades: true,
           messages: true,
-          friendRequests: true
+          friendRequests: true,
         },
         privacy: {
           showCollection: true,
-          showWishlist: true
-        }
-      }
+          showWishlist: true,
+        },
+      },
     });
 
     const savedUser = await newUser.save();

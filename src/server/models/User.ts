@@ -1,10 +1,10 @@
 /**
  * @file User.ts
  * @description Modelo de Usuario para la base de datos MongoDB
- * 
+ *
  * Define la estructura de datos para los usuarios de la aplicación
  * incluyendo autenticación, configuraciones, amigos y más.
- * 
+ *
  * @requires mongoose - ODM para MongoDB
  * @requires validator - Validación de datos (emails, etc)
  */
@@ -20,13 +20,13 @@ const { Schema } = mongoose;
  * @property {Date} createdAt - Fecha de creación de la solicitud
  */
 const friendRequestSchema = new Schema({
-  from: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  from: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   createdAt: { type: Date, default: Date.now },
 });
 
 /**
  * Esquema principal del Usuario
- * 
+ *
  * @typedef {Object} User
  * @property {string} username - Nombre de usuario único
  * @property {string} email - Email único del usuario (validado)
@@ -50,71 +50,70 @@ const friendRequestSchema = new Schema({
  * @property {Date} createdAt - Fecha de creación del usuario
  * @property {Date} updatedAt - Fecha de última actualización
  */
-const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    validate(value: string) {
-      if (!validator.default.isEmail(value)) {
-        throw new Error('Email is invalid');
-      }
-    }
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  profileImage: {
-    type: String,
-    default: ''
-  },
-  settings: {
-    language: {
+const userSchema = new mongoose.Schema(
+  {
+    username: {
       type: String,
-      default: 'es',
-      enum: ['es', 'en']
+      required: true,
+      unique: true,
+      trim: true,
     },
-    darkMode: {
-      type: Boolean,
-      default: false
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      validate(value: string) {
+        if (!validator.default.isEmail(value)) {
+          throw new Error('Email is invalid');
+        }
+      },
     },
-    notifications: {
-      trades: { type: Boolean, default: true },
-      messages: { type: Boolean, default: true },
-      friendRequests: { type: Boolean, default: true }
+    password: {
+      type: String,
+      required: true,
     },
-    privacy: {
-      showCollection: { type: Boolean, default: true },
-      showWishlist: { type: Boolean, default: true }
-    }
+    profileImage: {
+      type: String,
+      default: '',
+    },
+    settings: {
+      language: {
+        type: String,
+        default: 'es',
+        enum: ['es', 'en'],
+      },
+      darkMode: {
+        type: Boolean,
+        default: false,
+      },
+      notifications: {
+        trades: { type: Boolean, default: true },
+        messages: { type: Boolean, default: true },
+        friendRequests: { type: Boolean, default: true },
+      },
+      privacy: {
+        showCollection: { type: Boolean, default: true },
+        showWishlist: { type: Boolean, default: true },
+      },
+    },
+    // pack opening token bucket
+    packTokens: {
+      type: Number,
+      default: 2,
+    },
+    packLastRefill: {
+      type: Date,
+      default: Date.now,
+    },
+    friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    friendRequests: [friendRequestSchema],
   },
-  // pack opening token bucket
-  packTokens: {
-    type: Number,
-    default: 2
-  },
-  packLastRefill: {
-    type: Date,
-    default: Date.now
-  },
-  friends: [
-    { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-  ],
-  blockedUsers: [
-    { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-  ],
-  friendRequests: [friendRequestSchema],
-}, {
-  timestamps: true
-});
+  {
+    timestamps: true,
+  }
+);
 
 /**
  * Modelo de Usuario exportado

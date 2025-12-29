@@ -1,20 +1,20 @@
 /**
  * @file FriendTrade.ts
  * @description Modelo de Invitaciones a Salas de Trading entre Amigos
- * 
+ *
  * Gestiona las invitaciones de trading privado entre amigos.
  * Incluye estado de aceptación, código de sala y referencia al trade.
- * 
+ *
  * @requires mongoose - ODM para MongoDB
  */
 
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 
 /**
  * Esquema de Invitación de Sala de Trading entre Amigos
- * 
+ *
  * @typedef {Object} FriendTradeRoomInvite
  * @property {ObjectId} from - ID del usuario que invita
  * @property {ObjectId} to - ID del usuario invitado
@@ -25,42 +25,47 @@ const { Schema } = mongoose;
  * @property {Date} completedAt - Fecha de finalización
  * @property {Date} updatedAt - Fecha de última actualización
  */
-const friendTradeRoomInviteSchema = new Schema({
-  from: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  to: { type: Schema.Types.ObjectId, ref: "User", required: true },
+const friendTradeRoomInviteSchema = new Schema(
+  {
+    from: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    to: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 
-  status: {
-    type: String,
-    enum: ["pending", "accepted", "rejected", "cancelled", "completed"],
-    default: "pending",
-  },
+    status: {
+      type: String,
+      enum: ['pending', 'accepted', 'rejected', 'cancelled', 'completed'],
+      default: 'pending',
+    },
 
-  privateRoomCode: {
-    type: String,
-    default: null,
-  },
+    privateRoomCode: {
+      type: String,
+      default: null,
+    },
 
-  tradeId: {
-    type: Schema.Types.ObjectId,
-    ref: "Trade",
-    default: null,
-  },
+    tradeId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Trade',
+      default: null,
+    },
 
-  createdAt: {
-    type: Date,
-    default: Date.now,
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    completedAt: {
+      type: Date,
+      default: null,
+    },
   },
-  completedAt: {
-    type: Date,
-    default: null,
-  },
-},
-{
-  timestamps: true,
-});
+  {
+    timestamps: true,
+  }
+);
 
 /**
  * Modelo de Invitación de Sala de Trading entre Amigos exportado
  * @type {mongoose.Model}
  */
-export const FriendTradeRoomInvite = mongoose.model("FriendTradeRoomInvite", friendTradeRoomInviteSchema);
+export const FriendTradeRoomInvite = mongoose.model(
+  'FriendTradeRoomInvite',
+  friendTradeRoomInviteSchema
+);

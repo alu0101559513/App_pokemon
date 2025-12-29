@@ -1,0 +1,215 @@
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.18s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.auth-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 18px;
+  border: 1px solid var(--card-border);
+  background: var(--panel-bg);
+  padding: 24px;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.35);
+  animation: modalIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.auth-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: var(--panel-bg);
+  color: var(--text);
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.12s ease,
+    box-shadow 0.16s ease;
+}
+
+.auth-modal-close:hover {
+  background: color-mix(in srgb, var(--text) 6%, transparent);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+}
+
+.auth-modal-close:active {
+  transform: scale(0.96);
+}
+
+.auth-modal-card input {
+  border: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+  background: var(--input-bg);
+  color: var(--text);
+  border-radius: 12px;
+}
+
+.auth-modal-card input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent),
+    0 10px 22px rgba(0, 0, 0, 0.06);
+}
+
+.authActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.authBtnGhost {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 0;
+  background: transparent;
+  font-family:
+    Manrope,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial,
+    sans-serif;
+  font-weight: 800;
+  font-size: clamp(15px, 1.05vw, 19px);
+  line-height: 1;
+  color: var(--text);
+  cursor: pointer;
+  position: relative;
+  transition: color 0.16s ease;
+}
+
+.authBtnGhost::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: -10px;
+  height: 2px;
+  border-radius: 999px;
+  background: transparent;
+  transform: scaleX(0.65);
+  transition:
+    background 0.16s ease,
+    transform 0.16s ease;
+}
+
+.authBtnGhost:hover::after {
+  background: rgba(48, 120, 211, 0.85);
+  transform: scaleX(1);
+}
+
+.authBtnGhost:hover {
+  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+  background: color-mix(in srgb, var(--primary) 6%, transparent);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.authBtnGhost:active {
+  transform: scale(0.97);
+}
+
+.authBtnPrimary {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--primary) 40%, transparent);
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  color: var(--text);
+  font-family:
+    Manrope,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial,
+    sans-serif;
+  font-weight: 800;
+  font-size: clamp(15px, 1.05vw, 19px);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease;
+}
+
+.authBtnPrimary:hover {
+  box-shadow: 0 14px 30px rgba(48, 120, 211, 0.22);
+  transform: translateY(-1px);
+}
+
+.authDivider {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+  margin: 0 6px;
+}
+
+.authLink {
+  background: transparent;
+  border: 0;
+  padding: 10px 8px;
+  font-family: Manrope, system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--text);
+  cursor: pointer;
+  position: relative;
+}
+
+.authLink::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: -10px;
+  height: 2px;
+  border-radius: 999px;
+  background: transparent;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.authLink:hover::after {
+  background: rgba(48, 120, 211, 0.85);
+}

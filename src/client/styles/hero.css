@@ -1,0 +1,129 @@
+.home-hero {
+  position: relative;
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.home-hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.45) 0%,
+      rgba(0, 0, 0, 0.65) 65%,
+      var(--bg) 100%
+    ),
+    url('/assets/home.png') center / cover no-repeat;
+}
+
+.home-hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 960px;
+  padding: 0 24px;
+}
+
+.home-hero-brand {
+  font-size: clamp(3.2rem, 6vw, 4.6rem);
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  color: #ffffff;
+}
+
+.home-hero-tagline {
+  margin-top: 18px;
+  font-size: 1.7rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.home-transition {
+  height: 140px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0), var(--bg));
+  margin-top: -80px;
+}
+
+.home-hero-actions {
+  margin-top: 42px;
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.hero-btn {
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-weight: 900;
+  text-decoration: none;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* hover común */
+.hero-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* eliminar diferencia visual */
+.hero-btn-primary,
+.hero-btn-secondary {
+  background: #ffffff;
+  color: #000000;
+  border: none;
+}
+.hero-section {
+  position: relative;
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(
+      1200px 600px at 50% 0%,
+      rgba(48, 120, 211, 0.18),
+      transparent 60%
+    ),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.15), transparent 40%), var(--bg);
+  overflow: hidden;
+}
+
+.hero-media {
+  position: absolute;
+  inset: 0;
+  background-image: url('/assets/hero/hero-digital.png');
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.1) contrast(1.05);
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.35) 40%,
+    var(--bg) 100%
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 920px;
+  padding: 0 24px;
+}
+
+.hero-title {
+  font-size: clamp(2.6rem, 5vw, 4.2rem);
+  font-weight: 950;
+  letter-spacing: -0.02em;
+}

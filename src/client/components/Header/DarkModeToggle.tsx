@@ -8,9 +8,9 @@ import { setDarkMode } from '../../features/preferences/preferencesSlice';
 const DarkModeToggle: React.FC = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const darkMode = useSelector((state: RootState) => state.preferences.preferences.darkMode);
-
-  // Aplicar la clase 'dark' al inicializar y cuando cambia darkMode
+  const darkMode = useSelector(
+    (state: RootState) => state.preferences.preferences.darkMode
+  );
   useEffect(() => {
     const htmlElement = document.documentElement;
     if (darkMode) {
@@ -22,7 +22,6 @@ const DarkModeToggle: React.FC = () => {
     }
   }, [darkMode]);
 
-  // Inicializar al cargar el componente
   useEffect(() => {
     const saved = localStorage.getItem('darkMode');
     if (saved === 'true') {

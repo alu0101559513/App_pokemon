@@ -1,13 +1,13 @@
 /**
  * @file i18n.ts
  * @description Configuración de internacionalización (i18n)
- * 
+ *
  * Configura soporte multiidioma para la aplicación:
  * - Idiomas soportados: Español (es), Inglés (en)
  * - Detección automática del navegador
  * - Almacenamiento en localStorage
  * - Idioma por defecto: Español
- * 
+ *
  * @requires i18next - Framework de internacionalización
  * @requires react-i18next - Integración con React
  * @requires i18next-browser-languagedetector - Detección de idioma del navegador
@@ -29,12 +29,12 @@ i18n
    * Middleware para detectar idioma del navegador
    */
   .use(LanguageDetector)
-  
+
   /**
    * Integración con React
    */
   .use(initReactI18next)
-  
+
   /**
    * Inicializar configuración
    */
@@ -43,7 +43,7 @@ i18n
      * Idioma por defecto si no se detecta ninguno
      */
     fallbackLng: 'es',
-    
+
     /**
      * Configuración de detección de idioma
      */
@@ -54,13 +54,13 @@ i18n
        * 2. Navegador (idioma del sistema)
        */
       order: ['localStorage', 'navigator'],
-      
+
       /**
        * Cachés donde guardar la detección
        */
-      caches: ['localStorage']
+      caches: ['localStorage'],
     },
-    
+
     /**
      * Recursos de traducción cargados
      */
@@ -69,15 +69,15 @@ i18n
        * Traducciones en español
        */
       es: {
-        translation: esTranslations
+        translation: esTranslations,
       },
       /**
        * Traducciones en inglés
        */
       en: {
-        translation: enTranslations
-      }
-    }
+        translation: enTranslations,
+      },
+    },
   });
 
 /**

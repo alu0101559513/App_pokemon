@@ -1,6 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import { User } from '../models/User.js';
+import { validateObjectId } from '../utils/mongoHelpers.js';
+import { sendError } from '../utils/responseHelpers.js';
 
 export const preferencesRouter = express.Router();
 
@@ -12,24 +14,24 @@ preferencesRouter.get('/users/:userId/preferences', async (req, res) => {
   try {
     const { userId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).send({ error: 'ID de usuario inválido' });
+    if (!validateObjectId(userId, res, 'ID de usuario')) {
+      return;
     }
 
     const user = await User.findById(userId).select('settings');
 
     if (!user) {
-      return res.status(404).send({ error: 'Usuario no encontrado' });
+      return sendError(res, 'Usuario no encontrado', 404);
     }
 
     res.send({
       language: user.settings?.language || 'es',
       darkMode: user.settings?.darkMode || false,
       notifications: user.settings?.notifications,
-      privacy: user.settings?.privacy
+      privacy: user.settings?.privacy,
     });
   } catch (error) {
-    res.status(500).send({ error: (error as Error).message ?? String(error) });
+    return sendError(res, error as Error, 500);
   }
 });
 
@@ -42,13 +44,15 @@ preferencesRouter.patch('/users/:userId/preferences', async (req, res) => {
     const { userId } = req.params;
     const { language, darkMode, notifications, privacy } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).send({ error: 'ID de usuario inválido' });
+    if (!validateObjectId(userId, res, 'ID de usuario')) {
+      return;
     }
 
     // Validar idioma
     if (language && !['es', 'en'].includes(language)) {
-      return res.status(400).send({ error: 'Idioma inválido. Usa "es" o "en"' });
+      return res
+        .status(400)
+        .send({ error: 'Idioma inválido. Usa "es" o "en"' });
     }
 
     const updateData: any = {};
@@ -60,13 +64,19 @@ preferencesRouter.patch('/users/:userId/preferences', async (req, res) => {
       updateData['settings.darkMode'] = darkMode;
     }
     if (notifications) {
-      if (notifications.trades !== undefined) updateData['settings.notifications.trades'] = notifications.trades;
-      if (notifications.messages !== undefined) updateData['settings.notifications.messages'] = notifications.messages;
-      if (notifications.friendRequests !== undefined) updateData['settings.notifications.friendRequests'] = notifications.friendRequests;
+      if (notifications.trades !== undefined)
+        updateData['settings.notifications.trades'] = notifications.trades;
+      if (notifications.messages !== undefined)
+        updateData['settings.notifications.messages'] = notifications.messages;
+      if (notifications.friendRequests !== undefined)
+        updateData['settings.notifications.friendRequests'] =
+          notifications.friendRequests;
     }
     if (privacy) {
-      if (privacy.showCollection !== undefined) updateData['settings.privacy.showCollection'] = privacy.showCollection;
-      if (privacy.showWishlist !== undefined) updateData['settings.privacy.showWishlist'] = privacy.showWishlist;
+      if (privacy.showCollection !== undefined)
+        updateData['settings.privacy.showCollection'] = privacy.showCollection;
+      if (privacy.showWishlist !== undefined)
+        updateData['settings.privacy.showWishlist'] = privacy.showWishlist;
     }
 
     const user = await User.findByIdAndUpdate(
@@ -76,7 +86,7 @@ preferencesRouter.patch('/users/:userId/preferences', async (req, res) => {
     ).select('settings');
 
     if (!user) {
-      return res.status(404).send({ error: 'Usuario no encontrado' });
+      return sendError(res, 'Usuario no encontrado', 404);
     }
 
     res.send({
@@ -85,10 +95,10 @@ preferencesRouter.patch('/users/:userId/preferences', async (req, res) => {
         language: user.settings?.language,
         darkMode: user.settings?.darkMode,
         notifications: user.settings?.notifications,
-        privacy: user.settings?.privacy
-      }
+        privacy: user.settings?.privacy,
+      },
     });
   } catch (error) {
-    res.status(500).send({ error: (error as Error).message ?? String(error) });
+    return sendError(res, error as Error, 500);
   }
 });

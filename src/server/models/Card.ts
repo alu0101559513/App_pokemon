@@ -1,106 +1,106 @@
 /**
  * @file Card.ts
- * @description Modelo genérico de Carta Pokémon para la base de datos
+ * @description Modelo BASE de Carta con Discriminator Pattern
+ *
+ * Este es el modelo base que contiene todos los campos comunes a todas las cartas.
+ * Usa el patrón discriminator de Mongoose para soportar herencia con una sola colección.
  * 
- * Almacena información de cartas base sin detalles específicos de Pokemon,
- * Entrenador, o Energía. Se usa como referencia desde UserCard.
- * 
+ * Los modelos PokemonCard, TrainerCard y EnergyCard heredan de este modelo base
+ * y añaden campos específicos de cada categoría.
+ *
  * @requires mongoose - ODM para MongoDB
  */
 
 import mongoose from 'mongoose';
 
 /**
- * Esquema de Carta genérica
- * 
- * @typedef {Object} Card
+ * Esquema BASE de Carta (común a todas las categorías)
+ *
+ * @typedef {Object} BaseCard
  * @property {string} pokemonTcgId - ID único de la API TCG Pokémon
  * @property {string} name - Nombre de la carta
+ * @property {string} supertype - Tipo principal (Pokémon, Trainer, Energy)
  * @property {string} series - Serie a la que pertenece
- * @property {string} set - Conjunto/Extensión
+ * @property {string} set - Nombre del conjunto/extensión
  * @property {string} rarity - Rareza de la carta
- * @property {Array<string>} types - Tipos de la carta (fuego, agua, etc)
- * @property {string} imageUrl - URL de imagen estándar
- * @property {string} illustrator - Ilustrador de la carta
- * @property {string} imageUrlHiRes - URL de imagen de alta resolución
- * @property {number} marketPrice - Precio en el mercado
- * @property {Object} price - Precios de diferentes mercados
+ * @property {Object} images - URLs de imágenes
+ * @property {string} images.small - Imagen pequeña
+ * @property {string} images.large - Imagen grande (alta resolución)
+ * @property {string} illustrator - Ilustrador/artista de la carta
+ * @property {Object} price - Información de precios de diferentes mercados
  * @property {number} price.cardmarketAvg - Precio promedio de Cardmarket
  * @property {number} price.tcgplayerMarketPrice - Precio de TCGPlayer
  * @property {number} price.avg - Precio promedio calculado
  * @property {Date} lastPriceUpdate - Última actualización de precios
- * @property {number} nationalPokedexNumber - Número en la Pokédex nacional
- * @property {string} artist - Artista de la carta
  * @property {string} cardNumber - Número de carta en el conjunto
- * @property {string} category - Categoría (pokemon, trainer, energy, unknown)
- * @property {Date} createdAt - Fecha de creación
- * @property {Date} updatedAt - Fecha de última actualización
+ * @property {string} category - Discriminator key (pokemon, trainer, energy, unknown)
+ * @property {Date} createdAt - Fecha de creación (automático)
+ * @property {Date} updatedAt - Fecha de última actualización (automático)
  */
-const cardSchema = new mongoose.Schema({
-  pokemonTcgId: {
-    type: String,
-    required: true,
-    unique: true,
-    index: true
+const cardSchema = new mongoose.Schema(
+  {
+    pokemonTcgId: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
+    name: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    supertype: {
+      type: String,
+    },
+    series: {
+      type: String,
+    },
+    set: {
+      type: String,
+      index: true,
+    },
+    rarity: {
+      type: String,
+      index: true,
+    },
+    images: {
+      small: { type: String },
+      large: { type: String },
+    },
+    illustrator: {
+      type: String,
+    },
+    price: {
+      cardmarketAvg: { type: Number, default: null },
+      tcgplayerMarketPrice: { type: Number, default: null },
+      avg: { type: Number, default: 0 },
+    },
+    lastPriceUpdate: {
+      type: Date,
+    },
+    cardNumber: {
+      type: String,
+    },
   },
-  name: {
-    type: String,
-    required: true
-  },
-  series: {
-    type: String
-  },
-  set: {
-    type: String
-  },
-  rarity: {
-    type: String
-  },
-  types: [{
-    type: String
-  }],
-  imageUrl: {
-    type: String
-  },
-  illustrator: {
-    type: String
-  },
-  imageUrlHiRes: {
-    type: String
-  },
-  marketPrice: {
-    type: Number,
-    default: 0
-  },
-  price: {
-    cardmarketAvg: { type: Number, default: null },
-    tcgplayerMarketPrice: { type: Number, default: null },
-    avg: { type: Number, default: 0 }
-  },
-  lastPriceUpdate: {
-    type: Date
-  },
-  nationalPokedexNumber: {
-    type: Number
-  },
-  artist: {
-    type: String
-  },
-  cardNumber: {
-    type: String
+  {
+    timestamps: true,
+    discriminatorKey: 'category',
+    collection: 'cards',
   }
-  ,
-  category: {
-    type: String,
-    enum: ['pokemon', 'trainer', 'energy', 'unknown'],
-    default: 'unknown'
-  }
-}, {
-  timestamps: true
-});
+);
 
 /**
- * Modelo de Carta exportado
+ * Índices compuestos para búsquedas frecuentes
+ */
+cardSchema.index({ name: 1, set: 1 });
+cardSchema.index({ category: 1, rarity: 1 });
+cardSchema.index({ set: 1, cardNumber: 1 });
+
+/**
+ * Modelo BASE de Carta exportado
+ * Los discriminators (PokemonCard, TrainerCard, EnergyCard) heredan de este modelo
+ * 
  * @type {mongoose.Model}
  */
 export const Card = mongoose.model('Card', cardSchema);

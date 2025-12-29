@@ -1,16 +1,16 @@
 /**
  * @file Trade.ts
  * @description Modelo de Transacción de Trading entre usuarios
- * 
+ *
  * Gestiona el intercambio de cartas entre dos usuarios,
  * incluyendo estado, cartas ofrecidas, aceptaciones y más.
- * 
+ *
  * @requires mongoose - ODM para MongoDB
  * @requires nanoid - Generador de IDs únicos
  */
 
-import mongoose from "mongoose";
-import { nanoid } from "nanoid";
+import mongoose from 'mongoose';
+import { nanoid } from 'nanoid';
 
 /**
  * Esquema de carta en una transacción
@@ -19,24 +19,27 @@ import { nanoid } from "nanoid";
  * @property {ObjectId} cardId - Referencia a Card
  * @property {number} estimatedValue - Valor estimado de la carta
  */
-const tradeSideCardSchema = new mongoose.Schema({
-  userCardId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "UserCard",
+const tradeSideCardSchema = new mongoose.Schema(
+  {
+    userCardId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'UserCard',
+    },
+    cardId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Card',
+    },
+    estimatedValue: {
+      type: Number,
+    },
   },
-  cardId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Card",
-  },
-  estimatedValue: {
-    type: Number,
-  },
-},{ _id: false });
+  { _id: false }
+);
 
 /**
  * Esquema principal de Trade
  * Controla el flujo completo de una transacción de trading
- * 
+ *
  * @typedef {Object} Trade
  * @property {ObjectId} initiatorUserId - Usuario que inicia el trade
  * @property {ObjectId} receiverUserId - Usuario que recibe el trade
@@ -57,27 +60,28 @@ const tradeSideCardSchema = new mongoose.Schema({
  * @property {Date} createdAt - Fecha de creación
  * @property {Date} updatedAt - Fecha de última actualización
  */
-const tradeSchema = new mongoose.Schema({
+const tradeSchema = new mongoose.Schema(
+  {
     initiatorUserId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
     receiverUserId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
 
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected", "completed", "cancelled"],
-      default: "pending",
+      enum: ['pending', 'accepted', 'rejected', 'completed', 'cancelled'],
+      default: 'pending',
     },
 
     tradeType: {
       type: String,
-      enum: ["public", "private"],
+      enum: ['public', 'private'],
       required: true,
     },
     privateRoomCode: {
@@ -86,28 +90,26 @@ const tradeSchema = new mongoose.Schema({
 
     requestId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "TradeRequest",
+      ref: 'TradeRequest',
       default: null,
     },
 
-  
     requestedPokemonTcgId: {
       type: String,
       default: null,
     },
 
-    
     initiatorCards: [tradeSideCardSchema],
     receiverCards: [tradeSideCardSchema],
 
     initiatorCardUserCardId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "UserCard",
+      ref: 'UserCard',
       default: null,
     },
     receiverCardUserCardId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "UserCard",
+      ref: 'UserCard',
       default: null,
     },
     initiatorAccepted: {
@@ -133,7 +135,7 @@ const tradeSchema = new mongoose.Schema({
       {
         senderId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
+          ref: 'User',
         },
         message: {
           type: String,
@@ -166,32 +168,31 @@ tradeSchema.index({ status: 1 });
  * Middleware pre-save
  * Genera código de sala privada y valida diferencias de valor en trades públicos
  */
-tradeSchema.pre("save", function (next) {
+tradeSchema.pre('save', function (next) {
   const trade: any = this;
 
-  if (trade.tradeType === "private" && !trade.privateRoomCode) {
+  if (trade.tradeType === 'private' && !trade.privateRoomCode) {
     trade.privateRoomCode = nanoid(10);
   }
 
   if (
-    trade.tradeType === "public" &&
-    typeof trade.initiatorTotalValue === "number" &&
-    typeof trade.receiverTotalValue === "number"
+    trade.tradeType === 'public' &&
+    typeof trade.initiatorTotalValue === 'number' &&
+    typeof trade.receiverTotalValue === 'number'
   ) {
-    const diff = Math.abs(
-      trade.initiatorTotalValue - trade.receiverTotalValue
-    );
+    const diff = Math.abs(trade.initiatorTotalValue - trade.receiverTotalValue);
     const maxValue = Math.max(
       trade.initiatorTotalValue,
       trade.receiverTotalValue
     );
 
-    trade.valueDifferencePercentage = maxValue > 0 ? (diff / maxValue) * 100 : 0;
+    trade.valueDifferencePercentage =
+      maxValue > 0 ? (diff / maxValue) * 100 : 0;
 
     if (trade.valueDifferencePercentage > 10) {
       return next(
         new Error(
-          "La diferencia de valor no puede superar el 10% en intercambios públicos"
+          'La diferencia de valor no puede superar el 10% en intercambios públicos'
         )
       );
     }
@@ -204,4 +205,4 @@ tradeSchema.pre("save", function (next) {
  * Modelo de Trade exportado
  * @type {mongoose.Model}
  */
-export const Trade = mongoose.model("Trade", tradeSchema);
+export const Trade = mongoose.model('Trade', tradeSchema);

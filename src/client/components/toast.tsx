@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import "../styles/toast.css";
+import React, { useEffect, useState } from 'react';
+import '../styles/toast.css';
 
 interface Toast {
   title: string;
@@ -19,9 +19,9 @@ export default function ToastContainer() {
       }, 4000);
     };
 
-    window.addEventListener("toast", handler);
+    window.addEventListener('toast', handler);
 
-    return () => window.removeEventListener("toast", handler);
+    return () => window.removeEventListener('toast', handler);
   }, []);
 
   return (
@@ -35,4 +35,3 @@ export default function ToastContainer() {
     </div>
   );
 }
-

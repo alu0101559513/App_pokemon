@@ -1,31 +1,29 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-
 const Hero: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <section className="container mx-auto px-6 py-12">
-      <div className="flex items-center justify-between gap-12">
-        {/* Texto izquierdo */}
-        <div className="flex-1 margin-left=10">
-          <h1 className="hero-text">CARDS AMI</h1>
-        </div>
-    
-        {/* Logo central */}
-        <div className="flex-1 flex justify-center">
-          <img 
-            src="/logo.png" 
-            alt="AMI Logo" 
-            className="hero-logo"
-          />
-        </div>
+    <section className="home-hero">
+      <div className="home-hero-bg" />
 
-        {/* Texto derecho */}
-        <div className="flex-1 flex justify-end">
-          <h1 className="text-5xl font-extrabold text-sky-700 text-center dark:text-sky-400">
-            {t("start.titulo")}
-          </h1>
+      <div className="home-hero-content">
+        <h1 className="home-hero-brand">CARDS AMI</h1>
+
+        <p className="home-hero-tagline">
+          {t(
+            'hero.tagline',
+            'Descubre el mundo Pokémon a través de nuestras cartas'
+          )}
+        </p>
+
+        <div className="home-hero-actions">
+          <a href="/discover" className="hero-btn hero-btn-primary">
+            {t('hero.explore', 'Explorar cartas')}
+          </a>
+          <a href="/collection" className="hero-btn hero-btn-secondary">
+            {t('hero.myCollection', 'Mi colección')}
+          </a>
         </div>
       </div>
     </section>

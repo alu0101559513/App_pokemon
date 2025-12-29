@@ -1,11 +1,11 @@
-import React from "react";
-import "../../styles/trade_modals.css";
+import React from 'react';
+import '../../styles/trade_modals.css';
 
 interface Props {
   visible: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  difference: number; 
+  difference: number;
 }
 
 const WarningValueDifferenceModal: React.FC<Props> = ({
@@ -29,8 +29,8 @@ const WarningValueDifferenceModal: React.FC<Props> = ({
         <p className="trade-warning-number">{difference.toFixed(2)}%</p>
 
         <p className="trade-warning-sub">
-          ¿Seguro que deseas continuar?  
-          El otro usuario podría rechazar esta oferta.
+          ¿Seguro que deseas continuar? El otro usuario podría rechazar esta
+          oferta.
         </p>
 
         <div className="trade-warning-actions">

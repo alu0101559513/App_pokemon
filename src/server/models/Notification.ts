@@ -1,10 +1,10 @@
 /**
  * @file Notification.ts
  * @description Modelo de Notificación para Usuarios
- * 
+ *
  * Almacena notificaciones del sistema, mensajes, solicitudes de amistad
  * y alertas de trading para los usuarios.
- * 
+ *
  * @requires mongoose - ODM para MongoDB
  */
 
@@ -12,7 +12,7 @@ import mongoose from 'mongoose';
 
 /**
  * Esquema de Notificación
- * 
+ *
  * @typedef {Object} Notification
  * @property {ObjectId} userId - ID del usuario destinatario
  * @property {string} type - Tipo (trade, message, friendRequest, system)
@@ -23,36 +23,39 @@ import mongoose from 'mongoose';
  * @property {Date} createdAt - Fecha de creación
  * @property {Date} updatedAt - Fecha de última actualización
  */
-const notificationSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+const notificationSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: ['trade', 'message', 'friendRequest', 'system'],
+      default: 'system',
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    message: {
+      type: String,
+      required: true,
+    },
+    isRead: {
+      type: Boolean,
+      default: false,
+    },
+    relatedId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    },
   },
-  type: {
-    type: String,
-    enum: ['trade', 'message', 'friendRequest', 'system'],
-    default: 'system'
-  },
-  title: {
-    type: String,
-    required: true
-  },
-  message: {
-    type: String,
-    required: true
-  },
-  isRead: {
-    type: Boolean,
-    default: false
-  },
-  relatedId: {
-    type: mongoose.Schema.Types.ObjectId,
-    default: null
+  {
+    timestamps: true,
   }
-}, {
-  timestamps: true
-});
+);
 
 /**
  * Modelo de Notificación exportado

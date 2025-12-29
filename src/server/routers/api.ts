@@ -11,6 +11,9 @@ syncRouter.post('/sync/cards', async (req, res) => {
     const total = await syncAllCards();
     res.send({ message: 'Sincronización completada correctamente', total });
   } catch (error) {
-    res.status(500).send({ error: "Error al sincronizar cartas", details: (error as Error).message ?? String(error) });
-}
+    res.status(500).send({
+      error: 'Error al sincronizar cartas',
+      details: (error as Error).message ?? String(error),
+    });
+  }
 });

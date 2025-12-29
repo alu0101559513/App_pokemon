@@ -1,14 +1,14 @@
 /**
  * @file index.ts
  * @description Archivo principal del servidor Express con configuración de Socket.io
- * 
+ *
  * Configura:
  * - Servidor Express con CORS
  * - Websocket (Socket.io) para comunicación en tiempo real
  * - Autenticación JWT para conexiones Socket.io
  * - Enrutadores de la API REST
  * - Eventos de Socket.io para salas de trading y mensajes privados
- * 
+ *
  * @requires express - Framework web
  * @requires http - Módulo HTTP de Node.js
  * @requires cors - Middleware CORS
@@ -16,25 +16,25 @@
  * @requires socket.io - Websocket para tiempo real
  */
 
-import express from "express";
-import http from "http";
-import cors from "cors";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { Server } from "socket.io";
-import "./db/mongoose.js";
+import express from 'express';
+import http from 'http';
+import cors from 'cors';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { Server } from 'socket.io';
+import './db/mongoose.js';
 
-import { defaultRouter } from "./routers/default.js";
-import { userRouter } from "./routers/users.js";
-import { pokemonRouter } from "./routers/pokemon.js";
-import { userCardRouter } from "./routers/usercard.js";
-import { tradeRouter } from "./routers/trade.js";
-import { cardRouter } from "./routers/card.js";
-import { syncRouter } from "./routers/api.js";
-import { notificationRouter } from "./routers/notification.js";
-import { preferencesRouter } from "./routers/preferences.js";
-import { tradeRequestRouter } from "./routers/trade_request.js";
-import { friendTradeRoomsRouter } from "./routers/friend_trade.js";
-import { ChatMessage } from "./models/Chat.js";
+import { defaultRouter } from './routers/default.js';
+import { userRouter } from './routers/users.js';
+import { pokemonRouter } from './routers/pokemon.js';
+import { userCardRouter } from './routers/usercard.js';
+import { tradeRouter } from './routers/trade.js';
+import { cardRouter } from './routers/card.js';
+import { syncRouter } from './routers/api.js';
+import { notificationRouter } from './routers/notification.js';
+import { preferencesRouter } from './routers/preferences.js';
+import { tradeRequestRouter } from './routers/trade_request.js';
+import { friendTradeRoomsRouter } from './routers/friend_trade.js';
+import { ChatMessage } from './models/Chat.js';
 
 /**
  * Instancia de la aplicación Express
@@ -49,10 +49,10 @@ const app = express();
  */
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
     credentials: true,
-    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 
@@ -60,8 +60,8 @@ app.use(
  * Middleware de parseo de JSON y formularios
  * Límite de 10MB para uploads
  */
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 /**
  * Crear servidor HTTP con Socket.io
@@ -75,9 +75,9 @@ const server = http.createServer(app);
  */
 export const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
     credentials: true,
-    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   },
 });
 
@@ -98,11 +98,11 @@ app.use((req: any, _res, next) => {
 io.use((socket, next) => {
   try {
     const token = socket.handshake.auth?.token;
-    if (!token) return next(new Error("No token provided"));
+    if (!token) return next(new Error('No token provided'));
 
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "tu-clave-secreta"
+      process.env.JWT_SECRET || 'tu-clave-secreta'
     ) as JwtPayload;
 
     socket.data.userId = decoded.userId;
@@ -110,7 +110,7 @@ io.use((socket, next) => {
 
     next();
   } catch (err) {
-    next(new Error("Invalid token"));
+    next(new Error('Invalid token'));
   }
 });
 
@@ -122,41 +122,57 @@ io.use((socket, next) => {
  * - Mensajes privados
  * - Notificaciones de desconexión
  */
-io.on("connection", (socket) => {
+io.on('connection', (socket) => {
   console.log(`Usuario conectado: ${socket.data.username}`);
 
   const privateRoom = `user:${socket.data.userId}`;
   socket.join(privateRoom);
 
-  socket.on("joinRoom", (roomCode: string) => {
+  socket.on('joinRoom', (roomCode: string) => {
     socket.join(roomCode);
     console.log(`${socket.data.username} se unió a sala ${roomCode}`);
 
-    socket.to(roomCode).emit("userJoined", {
+    socket.to(roomCode).emit('userJoined', {
       user: socket.data.username,
       userId: socket.data.userId,
     });
 
-    const usersInRoom = Array.from(
-      io.sockets.adapter.rooms.get(roomCode) || []
-    )
+    const usersInRoom = Array.from(io.sockets.adapter.rooms.get(roomCode) || [])
       .map((id) => io.sockets.sockets.get(id)?.data.username)
       .filter(Boolean) as string[];
 
-    socket.emit("roomUsers", { users: usersInRoom });
+    socket.emit('roomUsers', { users: usersInRoom });
   });
 
+  socket.on('typing', ({ to }) => {
+    if (!to) return;
+
+    socket.to(`user:${to}`).emit('typing', {
+      from: socket.data.userId,
+    });
+  });
+
+  socket.on('stopTyping', ({ to }) => {
+    if (!to) return;
+
+    socket.to(`user:${to}`).emit('stopTyping', {
+      from: socket.data.userId,
+    });
+  });
   /**
    * Evento: sendMessage
-   * Envía un mensaje a otros usuarios en la sala
+   * Envía un mensaje a TODOS los usuarios en la sala (incluyendo el remitente)
    * @param {Object} data - Objeto con roomCode y text
    */
-  socket.on("sendMessage", (data: any) => {
-    socket.to(data.roomCode).emit("receiveMessage", {
+  socket.on('sendMessage', (data: any) => {
+    const message = {
       user: socket.data.username,
       userId: socket.data.userId,
       text: data.text,
-    });
+    };
+    
+    // Enviar a todos en la sala incluyendo el remitente
+    io.to(data.roomCode).emit('receiveMessage', message);
   });
 
   /**
@@ -164,9 +180,9 @@ io.on("connection", (socket) => {
    * Notifica cuando un usuario selecciona una carta para trading
    * @param {Object} data - Objeto con roomCode y card
    */
-  socket.on("selectCard", (data: any) => {
+  socket.on('selectCard', (data: any) => {
     const { roomCode, card } = data;
-    socket.to(roomCode).emit("cardSelected", {
+    socket.to(roomCode).emit('cardSelected', {
       user: socket.data.username,
       userId: socket.data.userId,
       card,
@@ -178,9 +194,9 @@ io.on("connection", (socket) => {
    * Indica si el usuario está listo para completar el trading
    * @param {Object} data - Objeto con roomCode y accepted
    */
-  socket.on("tradeReady", (data: any) => {
+  socket.on('tradeReady', (data: any) => {
     const { roomCode, accepted } = data;
-    socket.to(roomCode).emit("tradeReady", {
+    socket.to(roomCode).emit('tradeReady', {
       user: socket.data.username,
       userId: socket.data.userId,
       accepted: !!accepted,
@@ -193,21 +209,28 @@ io.on("connection", (socket) => {
    * Guarda el mensaje en la base de datos
    * @param {Object} msg - Objeto con from, to, text
    */
-  socket.on("privateMessage", async (msg: any) => {
+  socket.on('privateMessage', async (msg: any) => {
     const { from, to, text } = msg;
-    console.log(`Mensaje privado de ${from} a ${to}: ${text}`);
+
+    if (!from || !to || !text) return;
 
     try {
-      await ChatMessage.create({ from, to, text });
-
-      io.to(`user:${to}`).emit("privateMessage", {
+      const saved = await ChatMessage.create({
         from,
         to,
         text,
-        createdAt: new Date().toISOString(),
       });
+
+      const payload = {
+        from,
+        to,
+        text,
+        createdAt: saved.createdAt,
+      };
+      io.to(`user:${to}`).emit('privateMessage', payload);
+      io.to(`user:${from}`).emit('privateMessage', payload);
     } catch (err) {
-      console.error("Error guardando mensaje privado:", err);
+      console.error('Error guardando mensaje privado:', err);
     }
   });
 
@@ -215,7 +238,7 @@ io.on("connection", (socket) => {
    * Evento: disconnect
    * Se ejecuta cuando un usuario se desconecta
    */
-  socket.on("disconnect", () => {
+  socket.on('disconnect', () => {
     console.log(`Usuario desconectado: ${socket.data.username}`);
   });
 });

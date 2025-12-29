@@ -1,21 +1,21 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import api from '../../services/apiService'
-import { Trade, TradeStatus } from '../../types'
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import api from '../../services/apiService';
+import { Trade, TradeStatus } from '../../types';
 
 interface TradesState {
-  list: Trade[]
-  loading: boolean
-  error: string | null
+  list: Trade[];
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: TradesState = {
   list: [],
   loading: false,
   error: null,
-}
+};
 
 export const fetchUserTrades = createAsyncThunk(
-  "trades/fetchUserTrades",
+  'trades/fetchUserTrades',
   async (userId: string, { rejectWithValue }) => {
     try {
       return await api.getUserTrades(userId);
@@ -26,14 +26,14 @@ export const fetchUserTrades = createAsyncThunk(
 );
 
 export const createTrade = createAsyncThunk(
-  "trades/createTrade",
+  'trades/createTrade',
   async (
     data: {
       initiatorUserId: string;
       receiverUserId: string;
       initiatorCards?: any[];
       receiverCards?: any[];
-      tradeType?: "private" | "public";
+      tradeType?: 'private' | 'public';
     },
     { rejectWithValue }
   ) => {
@@ -47,7 +47,7 @@ export const createTrade = createAsyncThunk(
 );
 
 export const updateTradeStatus = createAsyncThunk(
-  "trades/updateStatus",
+  'trades/updateStatus',
   async (
     { tradeId, status }: { tradeId: string; status: TradeStatus },
     { rejectWithValue }
@@ -60,9 +60,8 @@ export const updateTradeStatus = createAsyncThunk(
   }
 );
 
-
 const tradesSlice = createSlice({
-  name: "trades",
+  name: 'trades',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -77,7 +76,10 @@ const tradesSlice = createSlice({
       })
       .addCase(fetchUserTrades.rejected, (state, action) => {
         state.loading = false;
-        state.error = (action.payload as string) ?? action.error.message ?? "Error al cargar intercambios";
+        state.error =
+          (action.payload as string) ??
+          action.error.message ??
+          'Error al cargar intercambios';
       })
       .addCase(createTrade.pending, (state) => {
         state.loading = true;
@@ -89,7 +91,10 @@ const tradesSlice = createSlice({
       })
       .addCase(createTrade.rejected, (state, action) => {
         state.loading = false;
-        state.error = (action.payload as string) ?? action.error.message ?? "Error creando intercambio";
+        state.error =
+          (action.payload as string) ??
+          action.error.message ??
+          'Error creando intercambio';
       })
       .addCase(updateTradeStatus.fulfilled, (state, action) => {
         const updated: any = action.payload;
@@ -102,4 +107,4 @@ const tradesSlice = createSlice({
   },
 });
 
-export default tradesSlice.reducer
+export default tradesSlice.reducer;

@@ -1,5 +1,5 @@
-import React from "react";
-import "../../styles/trade_modals.css";
+import React from 'react';
+import '../../styles/trade_modals.css';
 
 interface UserCard {
   id: string;
@@ -62,7 +62,6 @@ const TradeOfferCardModal: React.FC<Props> = ({
           </div>
 
           <div className="trade-offer-right">
-
             <label className="trade-request-label">
               Usuario con el que quieres intercambiar
             </label>
@@ -74,23 +73,28 @@ const TradeOfferCardModal: React.FC<Props> = ({
             >
               {owners.map((o) => (
                 <option key={o.username} value={o.username}>
-                  @{o.username} {o.quantity > 1 ? `(${o.quantity} uds)` : ""}
+                  @{o.username} {o.quantity > 1 ? `(${o.quantity} uds)` : ''}
                 </option>
               ))}
             </select>
-            <label className="trade-request-label" style={{ marginTop: "10px" }}>
+            <label
+              className="trade-request-label"
+              style={{ marginTop: '10px' }}
+            >
               Selecciona una de tus cartas para ofrecer
             </label>
 
             <div className="trade-offer-grid">
               {paginated.length === 0 && (
-                <p className="trade-no-cards">No tienes cartas marcadas para intercambio.</p>
+                <p className="trade-no-cards">
+                  No tienes cartas marcadas para intercambio.
+                </p>
               )}
 
               {paginated.map((c) => (
                 <div
                   key={c.id}
-                  className={`trade-offer-card ${selectedMyCard?.id === c.id ? "selected" : ""}`}
+                  className={`trade-offer-card ${selectedMyCard?.id === c.id ? 'selected' : ''}`}
                   onClick={() => onSelectMyCard(c)}
                 >
                   <img src={c.image} alt={c.name} />
@@ -99,12 +103,18 @@ const TradeOfferCardModal: React.FC<Props> = ({
             </div>
             {totalPages > 1 && (
               <div className="trade-pagination">
-                <button disabled={page === 1} onClick={() => setPage(page - 1)}>◀</button>
-                <span>{page} / {totalPages}</span>
+                <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+                  ⬅
+                </button>
+                <span>
+                  {page} / {totalPages}
+                </span>
                 <button
                   disabled={page === totalPages}
                   onClick={() => setPage(page + 1)}
-                >▶</button>
+                >
+                  ➡
+                </button>
               </div>
             )}
 
@@ -121,9 +131,7 @@ const TradeOfferCardModal: React.FC<Props> = ({
                 Enviar solicitud
               </button>
             </div>
-
           </div>
-
         </div>
       </div>
     </div>

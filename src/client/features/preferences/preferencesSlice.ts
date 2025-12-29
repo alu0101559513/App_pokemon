@@ -34,15 +34,15 @@ const initialState: PreferencesState = {
     notifications: {
       trades: true,
       messages: true,
-      friendRequests: true
+      friendRequests: true,
     },
     privacy: {
       showCollection: true,
-      showWishlist: true
-    }
+      showWishlist: true,
+    },
   },
   loading: false,
-  error: null
+  error: null,
 };
 
 const preferencesSlice = createSlice({
@@ -53,43 +53,49 @@ const preferencesSlice = createSlice({
     setPreferences: (state, action: PayloadAction<UserPreferences>) => {
       state.preferences = action.payload;
     },
-    
+
     // Cambiar idioma
     setLanguage: (state, action: PayloadAction<'es' | 'en'>) => {
       state.preferences.language = action.payload;
     },
-    
+
     // Cambiar modo oscuro
     setDarkMode: (state, action: PayloadAction<boolean>) => {
       state.preferences.darkMode = action.payload;
     },
-    
+
     // Actualizar notificaciones
-    setNotificationPreferences: (state, action: PayloadAction<Partial<UserPreferences['notifications']>>) => {
+    setNotificationPreferences: (
+      state,
+      action: PayloadAction<Partial<UserPreferences['notifications']>>
+    ) => {
       state.preferences.notifications = {
         ...state.preferences.notifications,
-        ...action.payload
+        ...action.payload,
       };
     },
-    
+
     // Actualizar privacidad
-    setPrivacyPreferences: (state, action: PayloadAction<Partial<UserPreferences['privacy']>>) => {
+    setPrivacyPreferences: (
+      state,
+      action: PayloadAction<Partial<UserPreferences['privacy']>>
+    ) => {
       state.preferences.privacy = {
         ...state.preferences.privacy,
-        ...action.payload
+        ...action.payload,
       };
     },
-    
+
     // Establecer carga
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
-    
+
     // Establecer error
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
-    }
-  }
+    },
+  },
 });
 
 export const {
@@ -99,7 +105,7 @@ export const {
   setNotificationPreferences,
   setPrivacyPreferences,
   setLoading,
-  setError
+  setError,
 } = preferencesSlice.actions;
 
 export default preferencesSlice.reducer;

@@ -1,5 +1,5 @@
-import React from "react";
-import "../../styles/trade_modals.css";
+import React from 'react';
+import '../../styles/trade_modals.css';
 
 interface Props {
   visible: boolean;
@@ -22,7 +22,7 @@ const TradeMessageModal: React.FC<Props> = ({
   selectedOwner,
   onOwnerChange,
   note,
-  onNoteChange
+  onNoteChange,
 }) => {
   if (!visible) return null;
 
@@ -30,7 +30,7 @@ const TradeMessageModal: React.FC<Props> = ({
 
   return (
     <div className="trade-overlay" onClick={onClose}>
-      <div className="trade-offer-panel" onClick={stop}>  
+      <div className="trade-offer-panel" onClick={stop}>
         <h2 className="trade-mode-title">Enviar mensaje</h2>
         <div className="trade-offer-body">
           <div className="trade-offer-left">
@@ -38,7 +38,6 @@ const TradeMessageModal: React.FC<Props> = ({
           </div>
 
           <div className="trade-offer-right">
-
             <label className="trade-request-label">
               Usuario con el que quieres intercambiar
             </label>
@@ -50,12 +49,15 @@ const TradeMessageModal: React.FC<Props> = ({
             >
               {owners.map((o) => (
                 <option key={o.username} value={o.username}>
-                  @{o.username} {o.quantity > 1 ? `(${o.quantity} uds)` : ""}
+                  @{o.username} {o.quantity > 1 ? `(${o.quantity} uds)` : ''}
                 </option>
               ))}
             </select>
 
-            <label className="trade-request-label" style={{ marginTop: "14px" }}>
+            <label
+              className="trade-request-label"
+              style={{ marginTop: '14px' }}
+            >
               Mensaje o carta que ofreces
             </label>
 
@@ -74,7 +76,6 @@ const TradeMessageModal: React.FC<Props> = ({
                 Enviar solicitud
               </button>
             </div>
-
           </div>
         </div>
       </div>

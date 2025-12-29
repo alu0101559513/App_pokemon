@@ -1,8 +1,7 @@
-
 .trade-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -140,7 +139,7 @@
 .trade-offer-img {
   width: 200px;
   border-radius: 10px;
-  box-shadow: 0 0 14px rgba(0,0,0,0.25);
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.25);
 }
 
 .trade-offer-right {
@@ -168,7 +167,7 @@
   cursor: pointer;
   border: 2px solid transparent;
   transition: 0.2s ease;
-  position: relative; 
+  position: relative;
   z-index: 1;
 }
 
@@ -181,9 +180,9 @@
   border: 2px solid #0ea5e9 !important;
   background: #e0f7ff !important;
   transform: scale(1.06);
-  box-shadow: 0 0 10px rgba(14,165,233,0.6);
-  z-index: 5; 
-  outline: 3px solid rgba(14,165,233,0.5);
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.6);
+  z-index: 5;
+  outline: 3px solid rgba(14, 165, 233, 0.5);
   outline-offset: 2px;
 }
 
@@ -227,11 +226,21 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0 }
-  to { opacity: 1 }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes popIn {
-  from { opacity: 0; transform: scale(0.95) }
-  to { opacity: 1; transform: scale(1) }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

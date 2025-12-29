@@ -1,20 +1,12 @@
-.trade-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: white;
-  color: #111;
-}
-
-.dark .trade-page {
-  background: #111827;
-  color: #f3f4f6;
-}
-
 .trade-main {
   flex: 1;
   width: 100%;
   padding: 40px;
+  background-color: var(--background);
+}
+
+.dark .trade-main {
+  background-color: var(--panel-bg);
 }
 
 .trade-container {
@@ -30,7 +22,6 @@
   }
 }
 
-
 .trade-left {
   flex: 1;
   text-align: center;
@@ -39,22 +30,22 @@
 .trade-title {
   font-size: 2.4rem;
   font-weight: 800;
-  color: #0284c7;
+  color: var(--primary);
 }
 
 .dark .trade-title {
-  color: #38bdf8;
+  color: var(--primary);
 }
 
 .trade-room-code {
   font-size: 0.9rem;
-  color: #444;
+  color: var(--text);
   margin-top: -6px;
   margin-bottom: 20px;
 }
 
 .dark .trade-room-code {
-  color: #9ca3af;
+  color: var(--text);
 }
 
 .trade-fight {
@@ -64,7 +55,6 @@
   margin-bottom: 20px;
 }
 
-/* PLAYER BLOCK */
 .player-block {
   display: flex;
   flex-direction: column;
@@ -75,39 +65,39 @@
   width: 95px;
   height: 95px;
   border-radius: 50%;
-  border: 4px solid white;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  border: 4px solid var(--panel-bg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   object-fit: cover;
 }
 
 .dark .player-avatar {
-  border: 4px solid #1f2937;
+  border: 4px solid var(--panel-bg);
 }
 
 .player-name {
   font-weight: 700;
   margin-top: 6px;
-  color: #075985;
+  color: var(--primary);
 }
 
 .dark .player-name {
-  color: #38bdf8;
+  color: var(--primary);
 }
 
 .player-name.opponent {
-  color: #1d4ed8;
+  color: var(--primary);
 }
 
 .dark .player-name.opponent {
-  color: #60a5fa;
+  color: var(--primary);
 }
 
 .player-card {
   width: 180px;
-  height: 260px;
+  height: 245px;
   border-radius: 18px;
-  background: linear-gradient(to bottom, #f8fafc, #e5e7eb);
-  border: 2px solid #cbd5e1;
+  background: var(--panel-bg);
+  border: 2px solid var(--border);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -115,43 +105,37 @@
 }
 
 .dark .player-card {
-  background: linear-gradient(to bottom, #374151, #1f2937);
-  border: 2px solid #4b5563;
+  background: var(--panel-bg);
+  border: 2px solid var(--primary);
 }
 
 .no-card {
   font-size: 0.8rem;
-  color: #777;
+  color: var(--text);
 }
 
 .dark .no-card {
-  color: #9ca3af;
-}
-
-.selected-card {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  color: var(--text);
 }
 
 .trade-icon {
   font-size: 3.5rem;
   font-weight: 900;
-  color: #0284c7;
+  color: var(--primary);
 }
 
 .dark .trade-icon {
-  color: #38bdf8;
+  color: var(--primary);
 }
 
 .trade-subtitle {
   margin-top: 10px;
   font-weight: bold;
-  color: #555;
+  color: var(--text);
 }
 
 .dark .trade-subtitle {
-  color: #d1d5db;
+  color: var(--text);
 }
 
 .trade-cards-grid {
@@ -178,8 +162,8 @@
 }
 
 .pager-btn {
-  background: #0284c7;
-  color: white;
+  background: var(--primary);
+  color: var(--background);
   border: none;
   padding: 6px 10px;
   border-radius: 6px;
@@ -187,7 +171,7 @@
 }
 
 .dark .pager-btn {
-  background: #0369a1;
+  background: var(--primary);
 }
 
 .pager-btn[disabled] {
@@ -197,39 +181,42 @@
 
 .pager-info {
   font-weight: 700;
-  color: #075985;
+  color: var(--primary);
 }
 
 .trade-card {
   width: 130px;
-  padding: 0; 
-  background: white;
-  border: 2px solid #7dd3fc;
-  border-radius: 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 14px;
   cursor: pointer;
   overflow: hidden;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
-}
-
-.trade-card-img {
-  width: 100%;
-  display: block;
-}
-
-.trade-card-title {
-  font-size: 0.78rem;
-  padding: 4px 6px 6px;
-  text-align: center;
-  color: #0f172a;
+  display: flex;
+  flex-direction: column;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    border-color 0.12s ease;
 }
 
 .trade-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(15,23,42,0.18);
-  border-color: #0ea5e9;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.15);
+  border-color: var(--border);
 }
 
-/* CHAT SECTION */
+.trade-card-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.trade-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+  border-color: var(--primary);
+}
+
 .trade-chat {
   width: 100%;
 }
@@ -244,15 +231,15 @@
   text-align: center;
   font-size: 1.6rem;
   font-weight: 800;
-  color: #0284c7;
+  color: var(--primary);
   margin-bottom: 12px;
 }
 
 .chat-window {
   height: 35rem;
   overflow-y: auto;
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 12px;
 }
@@ -276,22 +263,24 @@
 }
 
 .chat-bubble-2 {
-  padding: 12px 16px;
-  max-width: 75%;
-  border-radius: 14px;
-  font-size: 16px;
-  line-height: 1.4;
+  padding: 10px 14px;
+  max-width: 72%;
+  border-radius: 18px;
+  font-size: 15px;
+  line-height: 1.45;
 }
 
 .chat-bubble-2.self {
-  background: linear-gradient(to right, #0284c7, #0369a1);
-  color: white;
+  background: var(--primary);
+  color: var(--background);
+  border-bottom-right-radius: 6px;
 }
 
 .chat-bubble-2.other {
-  background: white;
-  border: 1px solid #cbd5e1;
-  color: #0f172a;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-bottom-left-radius: 6px;
 }
 
 .sender-name {
@@ -303,38 +292,42 @@
 .chat-input-row {
   display: flex;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 12px;
+  padding: 8px;
+  background: var(--panel-bg);
+  border-radius: 16px;
+  border: 1px solid var(--border);
 }
 
 .chat-input {
   flex: 1;
-  padding: 14px;
-  border-radius: 10px;
-  border: 1px solid #cbd5e1;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none;
+  font-size: 15px;
+  outline: none;
 }
 
 .chat-send {
-  background: #0284c7;
-  padding: 14px 22px;
-  font-weight: 700;
-  font-size: 17px;
-  color: white;
-  border-radius: 12px;
+  background: var(--primary);
+  padding: 12px 20px;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--background);
+  border-radius: 14px;
   cursor: pointer;
   border: none;
-  transition: transform 0.1s ease, background 0.2s ease, box-shadow 0.15s ease;
-  box-shadow: 0 4px 10px rgba(15,23,42,0.2);
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.35);
 }
 
 .chat-send:hover {
-  background: #0369a1;
+  background: var(--primary);
 }
 
 .chat-send:active {
-  transform: scale(0.90);
-  background: #075985;
+  transform: scale(0.9);
+  background: var(--primary);
 }
-
 
 .trade-actions {
   display: flex;
@@ -350,11 +343,14 @@
   font-size: 1rem;
   font-weight: 800;
   border-radius: 14px;
-  color: white;
+  color: var(--background);
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(15,23,42,0.22);
-  transition: transform 0.1s ease, filter 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.22);
+  transition:
+    transform 0.1s ease,
+    filter 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .btn-accept {
@@ -369,13 +365,13 @@
 .btn-reject:hover:not(:disabled) {
   filter: brightness(1.05);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(15,23,42,0.28);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.28);
 }
 
 .btn-accept:active:not(:disabled),
 .btn-reject:active:not(:disabled) {
   transform: scale(0.95);
-  box-shadow: 0 3px 8px rgba(15,23,42,0.2);
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.2);
 }
 
 .btn-accept:disabled,
@@ -408,7 +404,7 @@
 .trade-card-disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 .dark .trade-page {
@@ -463,7 +459,6 @@
   border-color: #334155;
 }
 
-
 .dark .trade-user,
 .dark .trade-card-name,
 .dark .trade-note,
@@ -487,7 +482,7 @@
 }
 
 .dark .room-chip-disabled {
-  color: #d1d5db !important; 
+  color: #d1d5db !important;
 }
 
 .dark .btn-blue-small,
@@ -505,8 +500,4 @@
 .dark .friend-row .trade-note,
 .dark .friend-row .trade-card-name {
   color: #ffffff !important;
-}
-
-.dark .friend-row-selected {
-  background: linear-gradient(90deg, #1e293b, #0f172a) !important;
 }

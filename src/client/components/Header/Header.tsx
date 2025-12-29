@@ -1,85 +1,89 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Search, Menu, User } from "lucide-react";
-import { useTranslation } from "react-i18next";
-import NotificationBell from "./NotificationBell";
-import LanguageSelector from "./LanguageSelector";
-import DarkModeToggle from "./DarkModeToggle";
-import { Link, useNavigate } from "react-router-dom";
-import { authService } from "../../services/authService";
-import apiService from "../../services/apiService";
-import { PokemonCard } from "../../types";
-import "../../styles/header.css";
+import React, { useEffect, useId, useRef, useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Search, User, ChevronDown, Menu, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import NotificationBell from './NotificationBell';
+import LanguageSelector from './LanguageSelector';
+import DarkModeToggle from './DarkModeToggle';
+import { authService } from '../../services/authService';
+import apiService from '../../services/apiService';
+import { PokemonCard } from '../../types';
+import '../../styles/header.css';
 
 const Header: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const listId = useId();
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [tradeOpen, setTradeOpen] = useState(false);
+
+  const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<PokemonCard[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [menuOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [isTradeOpen, setIsTradeOpen] = useState(false);
 
-  const tradeDropdownRef = useRef<HTMLDivElement | null>(null);
-  const user = authService.getUser();
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const profileRef = useRef<HTMLDivElement | null>(null);
+  const tradeRef = useRef<HTMLDivElement | null>(null);
   const searchRef = useRef<HTMLDivElement | null>(null);
 
+  const isAuthed = authService.isAuthenticated();
+  const user = authService.getUser();
+
   useEffect(() => {
-    if (!searchQuery.trim()) {
+    const q = searchQuery.trim();
+    if (!q) {
       setSearchResults([]);
       setSearchOpen(false);
+      setSearchLoading(false);
       return;
     }
 
+    let alive = true;
     const timer = setTimeout(async () => {
       setSearchLoading(true);
-      // Use TCGdex proxy quick search to avoid creating DB entries for ephemeral searches
-      const results = await apiService.searchTcgQuick(searchQuery, 8).catch(() => []);
+      const results = await apiService.searchTcgQuick(q, 8).catch(() => []);
+      if (!alive) return;
       setSearchResults(results);
       setSearchLoading(false);
       setSearchOpen(true);
-    }, 300);
+    }, 260);
 
-    return () => clearTimeout(timer);
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+    };
   }, [searchQuery]);
 
   useEffect(() => {
-    const clickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+      if (profileRef.current && !profileRef.current.contains(target))
         setProfileOpen(false);
-      }
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+      if (tradeRef.current && !tradeRef.current.contains(target))
+        setTradeOpen(false);
+      if (searchRef.current && !searchRef.current.contains(target))
         setSearchOpen(false);
-      }
     };
-    document.addEventListener("mousedown", clickOutside);
-    return () => document.removeEventListener("mousedown", clickOutside);
-  }, []);
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        tradeDropdownRef.current &&
-        !tradeDropdownRef.current.contains(e.target as Node)
-      ) {
-        setIsTradeOpen(false);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setProfileOpen(false);
+        setTradeOpen(false);
+        setSearchOpen(false);
+        setMobileOpen(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
   }, []);
 
-  const handleCardSelect = (card: any) => {
-    navigate(`/card/${card._id || card.id}`);
-    setSearchQuery("");
-    setSearchOpen(false);
-    setSearchResults([]);
-  };
-
-  // navigate to search page on Enter
   const onSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
@@ -88,130 +92,194 @@ const Header: React.FC = () => {
     }
   };
 
+  const handleCardSelect = (card: any) => {
+    navigate(`/card/${card._id || card.id}`);
+    setSearchQuery('');
+    setSearchOpen(false);
+    setSearchResults([]);
+  };
+
+  const toggleDarkMode = () => {
+    document.documentElement.classList.toggle('dark-mode');
+    localStorage.setItem(
+      'theme',
+      document.documentElement.classList.contains('dark-mode')
+        ? 'dark'
+        : 'light'
+    );
+  };
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark-mode');
+    }
+  }, []);
+
   return (
-    <header className="header-wrapper">
-      
-      <div className="header-container">
-        
-        {/* IZQUIERDA */}
-        <div className="header-left">
-          <Link to="/home">
-            <img src="/logo.png" alt="AMI Logo" className="header-logo" />
+    <header className="siteHeader">
+      <div className="siteHeader__inner">
+        {/* LEFT */}
+        <div className="siteHeader__left">
+          <button
+            className="iconBtn iconBtn--mobile"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label={
+              mobileOpen
+                ? t('common.close', 'Cerrar')
+                : t('common.open', 'Abrir')
+            }
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+
+          <Link
+            to="/home"
+            className="brand"
+            aria-label={t('header.home', 'AMI Home')}
+          >
+            <span className="brand__text brand__text--gradient">AMI</span>
           </Link>
 
-        <nav className="nav-desktop">
+          <nav className="topNav" aria-label="Primary">
+            <NavLink
+              to="/collection"
+              className={({ isActive }) =>
+                `topNav__link ${isActive ? 'is-active' : ''}`
+              }
+            >
+              {t('header.collection', 'Collection')}
+            </NavLink>
 
-          {/* COLECCIÓN */}
-          <Link to="/collection" className="CollectionButton">
-            {t("header.coleccion")}
-          </Link>
+            <NavLink
+              to="/abrir"
+              className={({ isActive }) =>
+                `topNav__link ${isActive ? 'is-active' : ''}`
+              }
+            >
+              {t('header.open', 'Open')}
+            </NavLink>
 
-          {/* ABRIR SOBRES */}
-          <Link to="/abrir" className="CollectionButton">
-            {t('header.abrir')}
-          </Link>
-
-          {/* INTERCAMBIO */}
-            <div className="relative" ref={tradeDropdownRef}>
+            <div className="dropdown" ref={tradeRef}>
               <button
-                className="CollectionButton"
-                onClick={() => setIsTradeOpen(!isTradeOpen)}
+                className="topNav__link topNav__link--btn"
+                onClick={() => setTradeOpen((v) => !v)}
+                aria-haspopup="menu"
+                aria-expanded={tradeOpen}
               >
-                {t("header.intercambio")}
+                <span>{t('header.trade', 'Trade')}</span>
+                <ChevronDown
+                  size={18}
+                  className={`chev ${tradeOpen ? 'chev--open' : ''}`}
+                />
               </button>
 
-              {isTradeOpen && (
-                <div className="profile-dropdown fadeIn" style={{ top: "50px" }}>
+              {tradeOpen && (
+                <div className="menu" role="menu">
                   <button
+                    role="menuitem"
+                    className="menu__item"
                     onClick={() => {
-                      setIsTradeOpen(false);
-                      navigate("/discover");
+                      setTradeOpen(false);
+                      navigate('/discover');
                     }}
-                    className="dropdown-item"
                   >
-                    {t("header.descubrirCartas")}
+                    {t('header.discoverCards', 'Discover Cards')}
                   </button>
 
                   <button
+                    role="menuitem"
+                    className="menu__item"
                     onClick={() => {
-                      setIsTradeOpen(false);
-                      navigate("/trade-requests");
+                      setTradeOpen(false);
+                      navigate('/trade-requests');
                     }}
-                    className="dropdown-item"
                   >
-                    {t("header.solicitudes")}
+                    {t('header.requests', 'Requests')}
                   </button>
 
                   <button
+                    role="menuitem"
+                    className="menu__item"
                     onClick={() => {
-                      setIsTradeOpen(false);
-                      navigate("/trade-room/create");
+                      setTradeOpen(false);
+                      navigate('/trade-room/create');
                     }}
-                    className="dropdown-item"
                   >
-                    {t("header.crearSala")}
+                    {t('header.createRoom', 'Create Room')}
                   </button>
                 </div>
               )}
             </div>
           </nav>
         </div>
-        {/* BUSCADOR */}
-        <div className="search-container" ref={searchRef}>
-          <input
-            type="text"
-            placeholder={t("header.buscar")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={onSearchKeyDown}
-            onFocus={() => setSearchOpen(true)}
-            className="header-search"
-          />
-          <Search className="search-icon" />
-          
-          {/* DROPDOWN DE BÚSQUEDA */}
+
+        {/* SEARCH */}
+        <div className="siteHeader__search" ref={searchRef}>
+          <div className="search">
+            <Search size={20} className="search__icon" />
+            <input
+              className="search__input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={onSearchKeyDown}
+              onFocus={() => setSearchOpen(true)}
+              placeholder={t('header.search', 'Search')}
+              aria-controls={listId}
+              aria-expanded={searchOpen}
+              aria-autocomplete="list"
+            />
+          </div>
+
           {searchOpen && searchQuery.trim() && (
-            <div className="search-dropdown">
+            <div className="searchDrop" id={listId} role="listbox">
               {searchLoading && (
-                <div className="search-dropdown-loading">
-                  <div className="spinner"></div>
-                  Buscando...
+                <div className="searchDrop__state">
+                  <span className="spinner" aria-hidden="true" />
+                  {t('common.searching') || 'Buscando...'}
                 </div>
               )}
-              
+
               {!searchLoading && searchResults.length === 0 && (
-                <div className="search-dropdown-empty">
-                  No se encontraron cartas
+                <div className="searchDrop__state">
+                  {t('common.noResults') || 'No se encontraron cartas'}
                 </div>
               )}
-              
+
               {!searchLoading && searchResults.length > 0 && (
-                <div className="search-dropdown-list">
+                <div className="searchDrop__list">
                   {searchResults.map((card) => (
-                    <div
+                    <button
                       key={card.id}
-                      className="search-dropdown-item"
+                      className="searchItem"
+                      role="option"
                       onClick={() => handleCardSelect(card)}
                     >
-                      <div className="dropdown-item-image">
-                        {card.image && (
+                      <div className="searchItem__img">
+                        {card.image ? (
                           <img
                             src={card.image}
                             alt={card.name}
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                            }}
+                            loading="lazy"
                           />
-                        )}
+                        ) : null}
                       </div>
-                      <div className="dropdown-item-info">
-                        <div className="dropdown-item-name">{card.name}</div>
-                        <div className="dropdown-item-details">
-                          {card.set && <span className="set-badge">{card.set}</span>}
-                          {card.rarity && <span className="rarity-badge">{card.rarity}</span>}
+
+                      <div className="searchItem__info">
+                        <div className="searchItem__name">{card.name}</div>
+                        <div className="searchItem__meta">
+                          {card.set ? (
+                            <span className="badge badge--set">{card.set}</span>
+                          ) : null}
+                          {card.rarity ? (
+                            <span className="badge badge--rarity">
+                              {card.rarity}
+                            </span>
+                          ) : null}
                         </div>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
@@ -219,69 +287,136 @@ const Header: React.FC = () => {
           )}
         </div>
 
-        {/* DERECHA */}
-        <div className="header-right">
+        {/* RIGHT */}
+        <div className="siteHeader__right">
           <NotificationBell />
           <LanguageSelector />
           <DarkModeToggle />
 
-          {/* PERFIL + DROPDOWN */}
-          <div className="relative" ref={dropdownRef}>
+          <div className="dropdown" ref={profileRef}>
             <button
-              className="profile-button"
-              onClick={() => setProfileOpen(!profileOpen)}
+              className="iconBtn iconBtn--profile"
+              onClick={() => setProfileOpen((v) => !v)}
+              aria-haspopup="menu"
+              aria-expanded={profileOpen}
+              aria-label={t('header.profile', 'Profile')}
             >
-              <User className="profile-icon" />
+              <User size={22} />
             </button>
 
-            {/* DROPDOWN */}
             {profileOpen && (
-              <div className="profile-dropdown fadeIn">
-                <button
-                  onClick={() => {
-                    setProfileOpen(false);
-                    navigate("/friends");
-                  }}
-                  className="dropdown-item"
-                >
-                  {t("header.amigos")}
-                </button>
-                <button
-                  onClick={() => {
-                    setProfileOpen(false);
-                    navigate("/profile");
-                  }}
-                  className="dropdown-item"
-                >
-                  {t("header.ajustes")}
-                </button>
+              <div className="menu menu--right" role="menu">
+                {isAuthed ? (
+                  <>
+                    <div className="menu__header">
+                      <div className="menu__title">
+                        {user?.username || 'AMI'}
+                      </div>
+                      <div className="menu__sub">
+                        {t('header.account', 'Account')}
+                      </div>
+                    </div>
 
-                <button
-                  onClick={() => {
-                    authService.logout();
-                    navigate("/");
-                  }}
-                  className="dropdown-item logout"
-                >
-                  {t("header.cerrarSesion")}
-                </button>
+                    <button
+                      className="menu__item"
+                      role="menuitem"
+                      onClick={() => {
+                        setProfileOpen(false);
+                        navigate('/friends');
+                      }}
+                    >
+                      {t('header.friends', 'Friends')}
+                    </button>
+                    <button
+                      className="menu__item"
+                      role="menuitem"
+                      onClick={() => {
+                        setProfileOpen(false);
+                        navigate('/profile');
+                      }}
+                    >
+                      {t('header.settings', 'Settings')}
+                    </button>
+                    <button
+                      className="menu__item menu__item--danger"
+                      role="menuitem"
+                      onClick={() => {
+                        authService.logout();
+                        navigate('/');
+                      }}
+                    >
+                      {t('header.logout', 'Log Out')}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="menu__item"
+                      role="menuitem"
+                      onClick={() => {
+                        setProfileOpen(false);
+                        navigate('/');
+                      }}
+                    >
+                      {t('header.login', 'Log In')}
+                    </button>
+                    <button
+                      className="menu__item"
+                      role="menuitem"
+                      onClick={() => {
+                        setProfileOpen(false);
+                        navigate('/register');
+                      }}
+                    >
+                      {t('header.register', 'Register')}
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* MENÚ MÓVIL */}
-      {menuOpen && (
-        <nav className="mobile-menu fadeIn">
-          <img src="/logo.png" alt="Logo" className="mobile-logo" />
-          <Link to="/coleccion" className="mobile-link">
-            {t("header.coleccion")}
-          </Link>
-          <Link to="/trade" className="mobile-link">
-            {t("header.intercambio")}
-          </Link>
-        </nav>
+      {/* MOBILE NAV */}
+      {mobileOpen && (
+        <div className="mobileNav">
+          <NavLink
+            to="/collection"
+            onClick={() => setMobileOpen(false)}
+            className="mobileNav__link"
+          >
+            {t('header.coleccion')}
+          </NavLink>
+          <NavLink
+            to="/abrir"
+            onClick={() => setMobileOpen(false)}
+            className="mobileNav__link"
+          >
+            {t('header.abrir')}
+          </NavLink>
+          <NavLink
+            to="/discover"
+            onClick={() => setMobileOpen(false)}
+            className="mobileNav__link"
+          >
+            {t('header.descubrirCartas')}
+          </NavLink>
+          <NavLink
+            to="/trade-requests"
+            onClick={() => setMobileOpen(false)}
+            className="mobileNav__link"
+          >
+            {t('header.solicitudes')}
+          </NavLink>
+          <NavLink
+            to="/trade-room/create"
+            onClick={() => setMobileOpen(false)}
+            className="mobileNav__link"
+          >
+            {t('header.crearSala')}
+          </NavLink>
+        </div>
       )}
     </header>
   );

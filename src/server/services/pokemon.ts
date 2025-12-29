@@ -1,12 +1,12 @@
 /**
  * @file pokemon.ts
  * @description Servicio de integración con API TCGdex para cartas Pokémon
- * 
+ *
  * Proporciona funciones para obtener datos de cartas desde la API pública TCGdex.net.
  * Actúa como capa intermedia entre la aplicación y la API externa.
- * 
+ *
  * Base URL: https://api.tcgdex.net/v2/en
- * 
+ *
  * @requires fetch - API de Node.js para solicitudes HTTP
  */
 
@@ -22,7 +22,7 @@ const TCGDEX_BASE_URL = 'https://api.tcgdex.net/v2/en';
 /**
  * Función auxiliar para hacer fetches a la API TCGdex
  * Maneja errores y retorna JSON automáticamente
- * 
+ *
  * @param {string} endpoint - Endpoint relativo (ej: "/cards", "/sets/swsh3")
  * @returns {Promise<any>} Respuesta JSON de la API
  * @throws {Error} Si la respuesta no es 200 OK
@@ -30,8 +30,8 @@ const TCGDEX_BASE_URL = 'https://api.tcgdex.net/v2/en';
 async function apiFetch(endpoint: string) {
   const response = await fetch(`${TCGDEX_BASE_URL}${endpoint}`, {
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   });
 
   if (!response.ok) {
@@ -132,13 +132,13 @@ export async function searchCards(filters: {
   set?: string;
 }) {
   const params = new URLSearchParams();
-  
+
   if (filters.name) params.append('name', filters.name);
   if (filters.types) params.append('types', filters.types);
   if (filters.hp) params.append('hp', filters.hp.toString());
   if (filters.rarity) params.append('rarity', filters.rarity);
   if (filters.set) params.append('set', filters.set);
-  
+
   const queryString = params.toString();
   return apiFetch(`/cards${queryString ? `?${queryString}` : ''}`);
 }

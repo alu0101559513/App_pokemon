@@ -1,18 +1,18 @@
 /**
  * @file TradeRequest.ts
  * @description Modelo de Solicitud de Intercambio de Cartas
- * 
+ *
  * Registra solicitudes de intercambio entre usuarios,
  * incluyendo cartas específicas solicitadas y estados.
- * 
+ *
  * @requires mongoose - ODM para MongoDB
  */
 
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 /**
  * Esquema de Solicitud de Trade
- * 
+ *
  * @typedef {Object} TradeRequest
  * @property {ObjectId} from - ID del usuario que solicita
  * @property {ObjectId} to - ID del usuario destinatario
@@ -31,12 +31,12 @@ const tradeRequestSchema = new mongoose.Schema(
   {
     from: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
     to: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
     pokemonTcgId: {
@@ -45,28 +45,28 @@ const tradeRequestSchema = new mongoose.Schema(
     },
     cardName: {
       type: String,
-      default: "",
+      default: '',
     },
     cardImage: {
       type: String,
-      default: "",
+      default: '',
     },
     note: {
       type: String,
-      default: "",
+      default: '',
     },
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected", "cancelled", "completed"],
-      default: "pending",
+      enum: ['pending', 'accepted', 'rejected', 'cancelled', 'completed'],
+      default: 'pending',
     },
-     isManual: {
+    isManual: {
       type: Boolean,
-      default: false, 
+      default: false,
     },
     tradeId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Trade",
+      ref: 'Trade',
       default: null,
     },
     finishedAt: {
@@ -86,7 +86,7 @@ const tradeRequestSchema = new mongoose.Schema(
 tradeRequestSchema.index(
   { finishedAt: 1 },
   {
-    expireAfterSeconds: 2 * 24 * 60 * 60, 
+    expireAfterSeconds: 2 * 24 * 60 * 60,
     partialFilterExpression: { finishedAt: { $ne: null } },
   }
 );
@@ -95,4 +95,4 @@ tradeRequestSchema.index(
  * Modelo de Solicitud de Trade exportado
  * @type {mongoose.Model}
  */
-export const TradeRequest = mongoose.model("TradeRequest", tradeRequestSchema);
+export const TradeRequest = mongoose.model('TradeRequest', tradeRequestSchema);

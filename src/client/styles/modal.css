@@ -1,0 +1,132 @@
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modalCard {
+  background: var(--panel-bg);
+  border-radius: 18px;
+  padding: 28px 26px 24px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+  animation: modalPop 0.18s ease-out;
+}
+
+@keyframes modalPop {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modalIcon {
+  margin-bottom: 12px;
+}
+
+.modal-success .modalIcon {
+  color: #22c55e;
+}
+.modal-error .modalIcon {
+  color: #ef4444;
+}
+.modal-info .modalIcon {
+  color: #3b82f6;
+}
+
+.modalTitle {
+  font-size: 20px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.modalMessage {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.modalBtn {
+  height: 42px;
+  padding: 0 24px;
+  border-radius: 999px;
+  font-weight: 900;
+  background: linear-gradient(90deg, rgb(48, 120, 211), rgb(0, 82, 255));
+  color: #fff;
+  border: 0;
+  cursor: pointer;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.modalBtn--secondary {
+  height: 42px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-weight: 900;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.modalBtn--secondary:hover {
+  background-color: rgba(148, 163, 184, 0.12);
+}
+
+.modalBtn--secondary:active {
+  transform: scale(0.97);
+}
+
+.modalBtn--primary {
+  height: 42px;
+  padding: 0 24px;
+  border-radius: 999px;
+  font-weight: 900;
+  border: 0;
+  cursor: pointer;
+  color: #fff;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
+}
+
+.modalBtn--primary:active {
+  transform: scale(0.97);
+}
+
+.modal-success .modalBtn--primary {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.modal-error .modalBtn--primary {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.modal-info .modalBtn--primary {
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+}
+
+.modalBtn--primary:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
