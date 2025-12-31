@@ -1,4 +1,5 @@
 import React from 'react';
+import { normalizeImageUrl } from '../utils/imageHelpers';
 import '../styles/feature.css';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -16,29 +17,6 @@ const CardsSlider: React.FC<{ title?: string; cards: SimpleCard[] }> = ({
 }) => {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const trackRef = React.useRef<HTMLDivElement | null>(null);
-
-  const normalizeImageUrl = (url?: string) => {
-    if (!url) return '';
-    let s = String(url);
-    
-    // Correct malformed TCGdex URLs (missing series component)
-    const tcgdexMatch = s.match(/^(https?:\/\/assets\.tcgdex\.net\/)(?:jp|en)\/([a-z0-9.]+)\/(.+)$/i);
-    if (tcgdexMatch) {
-      const [, baseUrl, setCode, rest] = tcgdexMatch;
-      const seriesMatch = setCode.match(/^([a-z]+)/i);
-      if (seriesMatch) {
-        const series = seriesMatch[1].toLowerCase();
-        s = `${baseUrl}en/${series}/${setCode.toLowerCase()}/${rest}`;
-      }
-    }
-    
-    // Normalize quality to high
-    if (/\/(?:small|large|high|low)\.png$/i.test(s)) {
-      return s.replace(/\/(?:small|large|high|low)\.png$/i, '/high.png');
-    }
-    if (/\.(png|jpg|jpeg|gif|webp)$/i.test(s)) return s;
-    return s.endsWith('/') ? `${s}high.png` : `${s}/high.png`;
-  };
 
   const displayCards = React.useMemo(() => cards || [], [cards]);
 

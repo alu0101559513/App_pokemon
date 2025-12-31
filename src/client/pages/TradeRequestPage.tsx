@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer';
 import { authService } from '../services/authService';
+import { authenticatedFetch } from '../utils/fetchHelpers';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../styles/request.css';
@@ -55,16 +56,9 @@ const TradeRequestsPage: React.FC = () => {
     requestId: string;
   } | null>(null);
 
-  const baseUrl = 'http://localhost:3000';
-  const token = localStorage.getItem('token') || '';
   const userId = user?.id;
 
   const navigate = useNavigate();
-
-  const authHeaders = {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  };
 
   useEffect(() => {
     if (!user) {
@@ -81,19 +75,15 @@ const TradeRequestsPage: React.FC = () => {
   };
 
   const loadRequests = async () => {
-    if (!userId || !token) return;
+    if (!userId) return;
 
     try {
       setLoading(true);
       setError(null);
 
       const [recResp, sentResp] = await Promise.all([
-        fetch(`${baseUrl}/trade-requests/received/${userId}`, {
-          headers: authHeaders,
-        }),
-        fetch(`${baseUrl}/trade-requests/sent/${userId}`, {
-          headers: authHeaders,
-        }),
+        authenticatedFetch(`/trade-requests/received/${userId}`),
+        authenticatedFetch(`/trade-requests/sent/${userId}`),
       ]);
 
       if (!recResp.ok) {
@@ -136,10 +126,10 @@ const TradeRequestsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (userId && token) {
+    if (userId) {
       loadRequests();
     }
-  }, [userId, token]);
+  }, [userId]);
 
   const activeReceived = useMemo(
     () => receivedRequests.filter((r) => !isFinal(r)),
@@ -185,11 +175,10 @@ const TradeRequestsPage: React.FC = () => {
 
   const handleAccept = async (requestId: string) => {
     try {
-      const resp = await fetch(
-        `${baseUrl}/trade-requests/${requestId}/accept`,
+      const resp = await authenticatedFetch(
+        `/trade-requests/${requestId}/accept`,
         {
           method: 'POST',
-          headers: authHeaders,
         }
       );
 
@@ -219,11 +208,10 @@ const TradeRequestsPage: React.FC = () => {
 
   const handleReject = async (requestId: string) => {
     try {
-      const resp = await fetch(
-        `${baseUrl}/trade-requests/${requestId}/reject`,
+      const resp = await authenticatedFetch(
+        `/trade-requests/${requestId}/reject`,
         {
           method: 'POST',
-          headers: authHeaders,
         }
       );
 
@@ -247,11 +235,10 @@ const TradeRequestsPage: React.FC = () => {
 
   const handleCancel = async (requestId: string) => {
     try {
-      const resp = await fetch(
-        `${baseUrl}/trade-requests/${requestId}/cancel`,
+      const resp = await authenticatedFetch(
+        `/trade-requests/${requestId}/cancel`,
         {
           method: 'DELETE',
-          headers: authHeaders,
         }
       );
 

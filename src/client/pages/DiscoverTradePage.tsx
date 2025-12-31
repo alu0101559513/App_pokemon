@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
+import { normalizeImageUrl } from '../utils/imageHelpers';
+import { authenticatedFetch } from '../utils/fetchHelpers';
+import { API_BASE_URL } from '../config/constants';
 import { authService } from '../services/authService';
 import { useTranslation } from 'react-i18next';
 import {
@@ -240,8 +243,13 @@ const DiscoverTradeCards: React.FC = () => {
 
     if (!img && id.includes('-')) {
       const [setCode, number] = id.split('-');
-      const series = (setCode.match(/^[a-zA-Z]+/) || ['xx'])[0];
-      img = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+      if (setCode && number) {
+        // Usar normalizeImageUrl para manejar correctamente la construcción de URLs
+        img = normalizeImageUrl(`https://assets.tcgdex.net/en/${setCode}/${number}/high.png`);
+      }
+    } else {
+      // Normalizar cualquier imagen existente
+      img = normalizeImageUrl(img);
     }
 
     let priceObj: { low?: number; mid?: number; high?: number } | undefined =
@@ -298,17 +306,13 @@ const DiscoverTradeCards: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        const base = 'http://localhost:3000';
         const params = new URLSearchParams();
         params.set('limit', '200');
         if (currentUsername) params.set('excludeUsername', currentUsername);
 
-        const resp = await fetch(`${base}/usercards/discover?${params}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            ...authService.getAuthHeaders(),
-          },
-        });
+        const resp = await authenticatedFetch(
+          `/usercards/discover?${params}`
+        );
 
         if (!resp.ok) throw new Error('Error cargando intercambio');
 
@@ -340,9 +344,12 @@ const DiscoverTradeCards: React.FC = () => {
           if (!image && id) {
             const [setCode, number] = id.split('-');
             if (setCode && number) {
-              const series = setCode.slice(0, 2);
-              image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+              // Usar normalizeImageUrl para manejar correctamente la construcción de URLs
+              image = normalizeImageUrl(`https://assets.tcgdex.net/en/${setCode}/${number}/high.png`);
             }
+          } else {
+            // Normalizar cualquier imagen existente
+            image = normalizeImageUrl(image);
           }
 
           // Normalizar la carta desde los datos poblados
@@ -622,7 +629,7 @@ const DiscoverTradeCards: React.FC = () => {
     if (!currentUsername) return;
 
     const resp = await fetch(
-      `http://localhost:3000/usercards/${currentUsername}/collection?forTrade=true`
+      `${API_BASE_URL}/usercards/${currentUsername}/collection?forTrade=true`
     );
     const data = await resp.json();
 
@@ -640,8 +647,13 @@ const DiscoverTradeCards: React.FC = () => {
       const pokemonTcgId = item.pokemonTcgId || card.pokemonTcgId || '';
       if (!image && pokemonTcgId.includes('-')) {
         const [setCode, number] = pokemonTcgId.split('-');
-        const series = (setCode.match(/^[a-zA-Z]+/) || ['xx'])[0];
-        image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+        if (setCode && number) {
+          // Usar normalizeImageUrl para manejar correctamente la construcción de URLs
+          image = normalizeImageUrl(`https://assets.tcgdex.net/en/${setCode}/${number}/high.png`);
+        }
+      } else {
+        // Normalizar cualquier imagen existente
+        image = normalizeImageUrl(image);
       }
 
       return {
@@ -660,15 +672,9 @@ const DiscoverTradeCards: React.FC = () => {
   const handleSendTradeRequest = async () => {
     if (!selectedCardForTrade) return;
 
-    const base = 'http://localhost:3000';
-
     try {
-      const resp = await fetch(`${base}/trade-requests`, {
+      const resp = await authenticatedFetch(`/trade-requests`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...authService.getAuthHeaders(),
-        },
         body: JSON.stringify({
           receiverIdentifier: selectedOwner,
           pokemonTcgId: selectedCardForTrade.id,
@@ -713,15 +719,9 @@ const DiscoverTradeCards: React.FC = () => {
   const sendTradeWithCard = async () => {
     if (!selectedCardForTrade || !selectedMyCard) return;
 
-    const base = 'http://localhost:3000';
-
     try {
-      const resp = await fetch(`${base}/trade-requests`, {
+      const resp = await authenticatedFetch(`/trade-requests`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...authService.getAuthHeaders(),
-        },
         body: JSON.stringify({
           receiverIdentifier: selectedOwner,
           pokemonTcgId: selectedCardForTrade.id,

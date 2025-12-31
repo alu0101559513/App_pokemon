@@ -3,6 +3,7 @@ import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer';
 import { initSocket } from '../socket';
 import { authService } from '../services/authService';
+import { authenticatedFetch, getAuthHeaders } from '../utils/fetchHelpers';
 import '../styles/friends.css';
 import { useTranslation } from 'react-i18next';
 
@@ -40,8 +41,7 @@ interface Message {
 const FriendsPage: React.FC = () => {
   const { t } = useTranslation();
   const user = authService.getUser() as User | null;
-  const token = localStorage.getItem('token');
-  if (!user || !token) return null;
+  if (!user) return null;
 
   const [view, setView] = useState<'chat' | 'requests'>('chat');
   const [friends, setFriends] = useState<Friend[]>([]);
@@ -64,19 +64,15 @@ const FriendsPage: React.FC = () => {
   });
 
   const loadAll = useCallback(async () => {
-    const headers = { Authorization: `Bearer ${token}` };
-
     try {
       const [f, r, s] = await Promise.all([
-        fetch(`http://localhost:3000/friends/user/${user.id}`, { headers }).then(
-          (r) => r.json()
+        authenticatedFetch(`/friends/user/${user.id}`).then((r) => r.json()),
+        authenticatedFetch(`/friends/requests/user/${user.id}`).then((r) =>
+          r.json()
         ),
-        fetch(`http://localhost:3000/friends/requests/user/${user.id}`, {
-          headers,
-        }).then((r) => r.json()),
-        fetch(`http://localhost:3000/friends/requests/sent/${user.id}`, {
-          headers,
-        }).then((r) => r.json()),
+        authenticatedFetch(`/friends/requests/sent/${user.id}`).then((r) =>
+          r.json()
+        ),
       ]);
 
       setFriends(f.friends || f.data?.friends || []);
@@ -89,7 +85,7 @@ const FriendsPage: React.FC = () => {
         message: 'Error al cargar solicitudes',
       });
     }
-  }, [token, user.id]);
+  }, [user.id]);
 
   useEffect(() => {
     loadAll();
@@ -165,12 +161,7 @@ const FriendsPage: React.FC = () => {
     setActiveFriend(friend);
     setIsTyping(false);
 
-    const r = await fetch(
-      `http://localhost:3000/friends/messages/${friend._id}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+    const r = await authenticatedFetch(`/friends/messages/${friend._id}`);
     const data = await r.json();
     setMessages(data.messages || []);
   };
@@ -190,12 +181,8 @@ const FriendsPage: React.FC = () => {
 
   const accept = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/friends/accept/${id}`, {
+      const res = await authenticatedFetch(`/friends/accept/${id}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (!res.ok) {
@@ -218,12 +205,8 @@ const FriendsPage: React.FC = () => {
 
   const reject = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/friends/reject/${id}`, {
+      const res = await authenticatedFetch(`/friends/reject/${id}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (!res.ok) {
@@ -246,12 +229,8 @@ const FriendsPage: React.FC = () => {
 
   const cancel = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/friends/requests/cancel/${id}`, {
+      const res = await authenticatedFetch(`/friends/requests/cancel/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (!res.ok) {
@@ -274,12 +253,8 @@ const FriendsPage: React.FC = () => {
 
   const sendFriendRequest = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/friends/request/${id}`, {
+      const res = await authenticatedFetch(`/friends/request/${id}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
       });
       
       if (!res.ok) {
@@ -314,11 +289,8 @@ const FriendsPage: React.FC = () => {
 
   const removeFriend = (friend: Friend) => {
     showConfirmToast(friend.username, async () => {
-      await fetch(`http://localhost:3000/friends/remove/${friend._id}`, {
+      await authenticatedFetch(`/friends/remove/${friend._id}`, {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       setToast({ visible: false, message: '' });
@@ -331,9 +303,7 @@ const FriendsPage: React.FC = () => {
   const handleSearch = async () => {
     if (!search.trim()) return;
 
-    const r = await fetch(`http://localhost:3000/users/search/${search}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const r = await authenticatedFetch(`/users/search/${search}`);
     setSearchResults(await r.json());
   };
 

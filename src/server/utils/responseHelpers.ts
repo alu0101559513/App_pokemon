@@ -7,9 +7,10 @@
  * - Manejo de errores estandarizado
  * - Validaciones comunes
  * - Paginación normalizada
+ * - Wrapper asyncHandler para eliminar try-catch duplicado
  */
 
-import { Response } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 
 /**
  * Envía una respuesta exitosa estandarizada
@@ -133,4 +134,35 @@ export function parsePaginationParams(query: any): { page: number; limit: number
   const limit = Math.max(1, Math.min(100, parseInt(query.limit as string) || 20));
   
   return { page, limit };
+}
+
+/**
+ * Wrapper para manejar errores en async route handlers
+ * Elimina la necesidad de try-catch en cada endpoint
+ * 
+ * @example
+ * router.get('/users', asyncHandler(async (req, res) => {
+ *   const users = await User.find();
+ *   sendSuccess(res, users);
+ * }));
+ */
+export function asyncHandler(
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<any>
+): RequestHandler {
+  return (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch((error) => {
+      // Si ya se envió una respuesta, no hacer nada
+      if (res.headersSent) {
+        return next(error);
+      }
+      
+      // Usar handleMongooseError para errores comunes de Mongoose
+      if (error.name === 'ValidationError' || error.name === 'CastError' || error.code === 11000) {
+        return handleMongooseError(res, error);
+      }
+      
+      // Para otros errores, enviar error genérico
+      return sendError(res, error, error.statusCode || 500);
+    });
+  };
 }

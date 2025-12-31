@@ -3,7 +3,7 @@
  * Maneja las llamadas a los endpoints de registro e inicio de sesión
  */
 
-const API_URL = 'http://localhost:3000';
+import { API_BASE_URL } from '../config/constants';
 
 interface RegisterData {
   username: string;
@@ -35,7 +35,7 @@ export const authService = {
    * Registra un nuevo usuario
    */
   async register(data: RegisterData): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/users/register`, {
+    const response = await fetch(`${API_BASE_URL}/users/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ export const authService = {
    * Inicia sesión con un usuario existente
    */
   async login(data: LoginData): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/users/login`, {
+    const response = await fetch(`${API_BASE_URL}/users/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -91,6 +91,7 @@ export function getCardCategory(
  * - Corrige URLs de TCGdex que faltan la serie: /jp/swsh1/ → /en/swsh/swsh1/
  * - Cambia idioma de jp a en (solo queremos cartas en inglés)
  * - Reemplaza /small.png, /large.png, /low.png por /high.png
+ * - Detecta URLs ya correctas para evitar duplicar la serie
  * 
  * @param url - URL de imagen a normalizar
  * @returns URL normalizada apuntando a versión high.png
@@ -98,24 +99,51 @@ export function getCardCategory(
  * @example
  * normalizeImageUrl('https://assets.tcgdex.net/jp/swsh1/25/low.png')
  * // => 'https://assets.tcgdex.net/en/swsh/swsh1/25/high.png'
+ * 
+ * @example
+ * normalizeImageUrl('https://assets.tcgdex.net/en/me/me01/186/high.png')
+ * // => 'https://assets.tcgdex.net/en/me/me01/186/high.png' (sin cambios, ya correcta)
  */
 export function normalizeImageUrl(url?: string | null): string {
   if (!url) return '';
   let s = String(url).trim();
   
-  // Corregir URLs de TCGdex que les falta la serie entre idioma y set
-  // Formato incorrecto: .../jp/swsh1/25/high.png
-  // Formato correcto: .../en/swsh/swsh1/25/high.png
-  const tcgdexMatch = s.match(/^(https?:\/\/assets\.tcgdex\.net\/)(?:jp|en)\/([a-z0-9.]+)\/(.+)$/i);
+  // Detectar URLs de TCGdex
+  const tcgdexUrlPattern = /^(https?:\/\/assets\.tcgdex\.net\/)(.+)$/i;
+  const tcgdexMatch = s.match(tcgdexUrlPattern);
+  
   if (tcgdexMatch) {
-    const [, baseUrl, setCode, rest] = tcgdexMatch;
+    const [, baseUrl, path] = tcgdexMatch;
     
-    // Extraer la serie del setCode (swsh1 → swsh, sm1 → sm, xy1 → xy, base1 → base)
-    const seriesMatch = setCode.match(/^([a-z]+)/i);
-    if (seriesMatch) {
-      const series = seriesMatch[1].toLowerCase();
-      // Reconstruir URL correcta: {baseUrl}en/{serie}/{set}/{resto}
-      s = `${baseUrl}en/${series}/${setCode.toLowerCase()}/${rest}`;
+    // Intentar detectar formato con 3 segmentos: lang/serie/setCode/resto
+    const threeSegmentPattern = /^(?:jp|en)\/([a-z]+)\/([a-z]+\d+)\/(.+)$/i;
+    const threeSegmentMatch = path.match(threeSegmentPattern);
+    
+    if (threeSegmentMatch) {
+      // Ya tiene formato de 3 segmentos - verificar si la serie es correcta
+      const [, currentSeries, setCode, rest] = threeSegmentMatch;
+      const correctSeries = setCode.match(/^([a-z]+)/i)?.[1].toLowerCase();
+      
+      if (correctSeries && currentSeries.toLowerCase() !== correctSeries) {
+        // Serie incorrecta - corregir (ej: ba/base1 → base/base1)
+        s = `${baseUrl}en/${correctSeries}/${setCode.toLowerCase()}/${rest}`;
+      } else {
+        // Serie correcta - solo asegurar idioma inglés
+        s = s.replace(/^(https?:\/\/assets\.tcgdex\.net\/)jp\//i, '$1en/');
+      }
+    } else {
+      // Formato de 2 segmentos: lang/setCode/resto (falta la serie)
+      const twoSegmentPattern = /^(?:jp|en)\/([a-z]+\d+)\/(.+)$/i;
+      const twoSegmentMatch = path.match(twoSegmentPattern);
+      
+      if (twoSegmentMatch) {
+        const [, setCode, rest] = twoSegmentMatch;
+        const series = setCode.match(/^([a-z]+)/i)?.[1].toLowerCase();
+        
+        if (series) {
+          s = `${baseUrl}en/${series}/${setCode.toLowerCase()}/${rest}`;
+        }
+      }
     }
   }
   

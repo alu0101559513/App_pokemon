@@ -27,21 +27,13 @@ import {
   UserOwnedCard,
 } from '../types';
 import { authService } from './authService';
+import { API_BASE_URL } from '../config/constants';
 
 /**
  * URL base de la API local del servidor
  * @constant
  * @type {string}
  */
-const API_BASE_URL = 'http://localhost:3000'; // URL base de la API del servidor
-
-/**
- * URL base de la API pública tcgDex
- * @constant
- * @type {string}
- */
-const TCGDEX_URL = 'https://api.tcgdex.net/v2/en'; // API pública de tcgDex
-
 /**
  * Obtiene el prefijo alfabético de un código de set
  * Ejemplo: "swsh1" -> "swsh", "base1" -> "ba"

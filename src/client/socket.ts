@@ -12,6 +12,7 @@
  */
 
 import { io } from 'socket.io-client';
+import { API_BASE_URL } from './config/constants';
 import { store } from '@/store/store';
 import { addNotification } from '@/features/notifications/notificationsSlice';
 import { toast } from '@/components/ToastManager';
@@ -47,7 +48,7 @@ export function initSocket() {
    * Socket.io se conecta con autenticación por JWT
    * El token se envía en el handshake
    */
-  socket = io('http://localhost:3000', {
+  socket = io(API_BASE_URL, {
     auth: { token },
     transports: ['websocket'],
   });

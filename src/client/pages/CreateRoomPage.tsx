@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer';
 import { authService } from '../services/authService';
+import { authenticatedFetch } from '../utils/fetchHelpers';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../styles/request.css';
@@ -49,16 +50,9 @@ const CreateRoomPage: React.FC = () => {
     messageKey: string;
   } | null>(null);
 
-  const baseUrl = 'http://localhost:3000';
-  const token = localStorage.getItem('token') || '';
   const userId = user?.id;
 
   const navigate = useNavigate();
-
-  const authHeaders = {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  };
 
   useEffect(() => {
     if (!user) {
@@ -68,11 +62,8 @@ const CreateRoomPage: React.FC = () => {
   }, [user]);
 
   const loadFriends = async () => {
-    if (!token) return;
     try {
-      const resp = await fetch(`${baseUrl}/friends`, {
-        headers: authHeaders,
-      });
+      const resp = await authenticatedFetch('/friends');
 
       const data = await resp.json();
       if (!resp.ok)
@@ -85,11 +76,8 @@ const CreateRoomPage: React.FC = () => {
   };
 
   const loadInvites = async () => {
-    if (!token) return;
     try {
-      const resp = await fetch(`${baseUrl}/friend-trade-rooms/invites`, {
-        headers: authHeaders,
-      });
+      const resp = await authenticatedFetch('/friend-trade-rooms/invites');
 
       const data = await resp.json();
       if (!resp.ok)
@@ -109,9 +97,9 @@ const CreateRoomPage: React.FC = () => {
       setLoading(false);
     };
 
-    if (userId && token) loadAll();
+    if (userId) loadAll();
     else setLoading(false);
-  }, [userId, token]);
+  }, [userId]);
 
   const filteredFriends = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -134,9 +122,8 @@ const CreateRoomPage: React.FC = () => {
     }
 
     try {
-      const resp = await fetch(`${baseUrl}/friend-trade-rooms/invite`, {
+      const resp = await authenticatedFetch('/friend-trade-rooms/invite', {
         method: 'POST',
-        headers: authHeaders,
         body: JSON.stringify({ friendId: selectedFriendId }),
       });
 
@@ -173,11 +160,10 @@ const CreateRoomPage: React.FC = () => {
 
   const handleAcceptInvite = async (inviteId: string) => {
     try {
-      const resp = await fetch(
-        `${baseUrl}/friend-trade-rooms/invites/${inviteId}/accept`,
+      const resp = await authenticatedFetch(
+        `/friend-trade-rooms/invites/${inviteId}/accept`,
         {
           method: 'POST',
-          headers: authHeaders,
         }
       );
 
@@ -197,11 +183,10 @@ const CreateRoomPage: React.FC = () => {
 
   const handleRejectInvite = async (inviteId: string) => {
     try {
-      const resp = await fetch(
-        `${baseUrl}/friend-trade-rooms/invites/${inviteId}/reject`,
+      const resp = await authenticatedFetch(
+        `/friend-trade-rooms/invites/${inviteId}/reject`,
         {
           method: 'POST',
-          headers: authHeaders,
         }
       );
 

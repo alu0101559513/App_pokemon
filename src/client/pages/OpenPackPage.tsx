@@ -3,6 +3,8 @@ import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
 import api from '../services/apiService';
 import { authService } from '../services/authService';
+import { authenticatedFetch } from '../utils/fetchHelpers';
+import { API_BASE_URL } from '../config/constants';
 import { useTranslation } from 'react-i18next';
 import confetti from 'canvas-confetti';
 import '../styles/open_pack.css';
@@ -161,9 +163,8 @@ const OpenPackPage: React.FC = () => {
       if (!user) return;
 
       try {
-        const resp = await fetch(
-          `http://localhost:3000/users/${encodeURIComponent(user.username || user.id)}/pack-status`,
-          { headers: { ...authService.getAuthHeaders() } }
+        const resp = await authenticatedFetch(
+          `/users/${encodeURIComponent(user.username || user.id)}/pack-status`
         );
 
         if (resp.ok) {
@@ -215,14 +216,10 @@ const OpenPackPage: React.FC = () => {
         return;
       }
 
-      const resp = await fetch(
-        `http://localhost:3000/users/${encodeURIComponent(user.username || user.id)}/open-pack`,
+      const resp = await authenticatedFetch(
+        `/users/${encodeURIComponent(user.username || user.id)}/open-pack`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...authService.getAuthHeaders(),
-          },
           body: JSON.stringify({ setId: selectedSet }),
         }
       );
@@ -244,9 +241,8 @@ const OpenPackPage: React.FC = () => {
 
       setOpenedCards(normalized);
 
-      const statusResp = await fetch(
-        `http://localhost:3000/users/${encodeURIComponent(user.username || user.id)}/pack-status`,
-        { headers: { ...authService.getAuthHeaders() } }
+      const statusResp = await authenticatedFetch(
+        `/users/${encodeURIComponent(user.username || user.id)}/pack-status`
       );
 
       if (statusResp.ok) {
