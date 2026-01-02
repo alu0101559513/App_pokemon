@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { useFormInput, useLoadingError } from '../hooks';
 import { useTranslation } from 'react-i18next';
 import '../styles/auth-modal.css';
 
@@ -12,40 +13,32 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
+  const { values: formData, handleChange } = useFormInput({
     username: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
-
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
-    setError(null);
-  };
+  const { loading, error, startLoading, stopLoading, handleError, clearError } = useLoadingError();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+    clearError();
 
     if (formData.password !== formData.confirmPassword) {
-      setError(t('signUp.passwordsNoCoinciden'));
-      setLoading(false);
+      handleError(new Error(t('signUp.passwordsNoCoinciden')));
       return;
     }
+
+    startLoading();
 
     try {
       await authService.register(formData);
       navigate('/home');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      handleError(err);
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   };
 
@@ -77,7 +70,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
           <input
             name="username"
             value={formData.username}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              handleChange(e);
+              clearError();
+            }}
             placeholder={t('signUp.usernamePlaceholder', 'Enter your username')}
             className="px-4 py-2.5 border rounded-lg"
           />
@@ -92,7 +88,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
             type="email"
             name="email"
             value={formData.email}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              handleChange(e);
+              clearError();
+            }}
             placeholder={t('signUp.emailPlaceholder', 'Enter your email')}
             className="px-4 py-2.5 border rounded-lg"
           />
@@ -107,7 +106,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
             type="password"
             name="password"
             value={formData.password}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              handleChange(e);
+              clearError();
+            }}
             placeholder={t('signUp.passwordPlaceholder', 'Enter your password')}
             className="px-4 py-2.5 border rounded-lg"
           />
@@ -122,7 +124,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
             type="password"
             name="confirmPassword"
             value={formData.confirmPassword}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              handleChange(e);
+              clearError();
+            }}
             placeholder={t(
               'signUp.confirmPasswordPlaceholder',
               'Confirm your password'

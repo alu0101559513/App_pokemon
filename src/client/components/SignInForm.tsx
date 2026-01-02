@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { useFormInput, useLoadingError } from '../hooks';
 import { useTranslation } from 'react-i18next';
 import '../styles/auth-modal.css';
 
@@ -12,23 +13,15 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSwitch }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
+  const { values: formData, handleChange } = useFormInput({
     username: '',
     password: '',
   });
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
-    setError(null);
-  };
+  const { loading, error, startLoading, stopLoading, handleError, clearError } = useLoadingError();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+    startLoading();
 
     try {
       const response = await authService.login(formData);
@@ -36,9 +29,9 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSwitch }) => {
       if (response.token) authService.saveToken(response.token);
       navigate('/home');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      handleError(err);
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   };
 
@@ -71,7 +64,10 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSwitch }) => {
             type="text"
             name="username"
             value={formData.username}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              handleChange(e);
+              clearError();
+            }}
             placeholder={t('signIn.usernamePlaceholder', 'Enter your username')}
             className="px-4 py-2.5 border rounded-lg"
           />
@@ -86,7 +82,10 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSwitch }) => {
             type="password"
             name="password"
             value={formData.password}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              handleChange(e);
+              clearError();
+            }}
             placeholder={t('signIn.passwordPlaceholder', 'Enter your password')}
             className="px-4 py-2.5 border rounded-lg"
           />

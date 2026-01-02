@@ -5,6 +5,7 @@ import { authService } from '../services/authService';
 import { authenticatedFetch } from '../utils/fetchHelpers';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLoadingError } from '../hooks';
 import '../styles/request.css';
 
 interface FriendUser {
@@ -39,8 +40,7 @@ const CreateRoomPage: React.FC = () => {
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [search, setSearch] = useState<string>('');
 
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { loading, error, startLoading, stopLoading, handleError, clearError } = useLoadingError(true);
   const [confirmAction, setConfirmAction] = useState<{
     type: 'accept' | 'reject';
     inviteId: string;
@@ -71,7 +71,7 @@ const CreateRoomPage: React.FC = () => {
 
       setFriends(data.friends || []);
     } catch (e: any) {
-      setError(e.message || t('createRoom.errorLoadingFriends'));
+      handleError(e.message || t('createRoom.errorLoadingFriends'));
     }
   };
 
@@ -90,11 +90,11 @@ const CreateRoomPage: React.FC = () => {
 
   useEffect(() => {
     const loadAll = async () => {
-      setLoading(true);
-      setError(null);
+      startLoading();
+      clearError();
       await loadFriends();
       await loadInvites();
-      setLoading(false);
+      stopLoading();
     };
 
     if (userId) loadAll();

@@ -6,6 +6,7 @@ import { authenticatedFetch } from '../utils/fetchHelpers';
 import { API_BASE_URL } from '../config/constants';
 import { authService } from '../services/authService';
 import { useTranslation } from 'react-i18next';
+import { useLoadingError, useModal } from '../hooks';
 import {
   Search,
   SlidersHorizontal,
@@ -165,8 +166,7 @@ const DiscoverTradeCards: React.FC = () => {
   const currentUsername = user?.username;
 
   const [tradeCards, setTradeCards] = useState<TradeCard[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { loading, error, startLoading, stopLoading, handleError } = useLoadingError(true);
 
   const [search, setSearch] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -186,9 +186,9 @@ const DiscoverTradeCards: React.FC = () => {
   const [selectedOwner, setSelectedOwner] = useState('');
   const [tradeNote, setTradeNote] = useState('');
 
-  const [modeModalVisible, setModeModalVisible] = useState(false);
-  const [messageModalVisible, setMessageModalVisible] = useState(false);
-  const [offerModalVisible, setOfferModalVisible] = useState(false);
+  const modeModal = useModal();
+  const messageModal = useModal();
+  const offerModal = useModal();
 
   const [myCards, setMyCards] = useState<UserCard[]>([]);
   const [selectedMyCard, setSelectedMyCard] = useState<UserCard | null>(null);
@@ -302,10 +302,9 @@ const DiscoverTradeCards: React.FC = () => {
     let mounted = true;
 
     const load = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+      startLoading();
 
+      try {
         const params = new URLSearchParams();
         params.set('limit', '200');
         if (currentUsername) params.set('excludeUsername', currentUsername);
@@ -385,9 +384,9 @@ const DiscoverTradeCards: React.FC = () => {
         if (!mounted) return;
         setTradeCards([...grouped.values()]);
       } catch (err: any) {
-        if (mounted) setError(err.message || 'Error');
+        if (mounted) handleError(err);
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) stopLoading();
       }
     };
 
@@ -622,7 +621,7 @@ const DiscoverTradeCards: React.FC = () => {
     setSelectedCardForTrade(card);
     setSelectedOwner(card.owners[0].username);
     setTradeNote('');
-    setModeModalVisible(true);
+    modeModal.open();
   };
 
   const loadMyCardsForTrade = async () => {
@@ -705,7 +704,7 @@ const DiscoverTradeCards: React.FC = () => {
         variant: 'success',
       });
       setSelectedCardForTrade(null);
-      setMessageModalVisible(false);
+      messageModal.close();
     } catch (err) {
       console.error(err);
       setConfirmModal({
@@ -759,7 +758,7 @@ const DiscoverTradeCards: React.FC = () => {
         ),
         variant: 'success',
       });
-      setOfferModalVisible(false);
+      offerModal.close();
       setSelectedCardForTrade(null);
     } catch (err) {
       console.error(err);
@@ -1049,23 +1048,23 @@ const DiscoverTradeCards: React.FC = () => {
         </div>
 
         <TradeModeModal
-          visible={modeModalVisible}
-          onClose={() => setModeModalVisible(false)}
+          visible={modeModal.isOpen}
+          onClose={modeModal.close}
           onSendMessage={() => {
-            setModeModalVisible(false);
-            setMessageModalVisible(true);
+            modeModal.close();
+            messageModal.open();
           }}
           onSendCard={async () => {
-            setModeModalVisible(false);
+            modeModal.close();
             await loadMyCardsForTrade();
-            setOfferModalVisible(true);
+            offerModal.open();
           }}
         />
 
         {selectedCardForTrade && (
           <TradeMessageModal
-            visible={messageModalVisible}
-            onClose={() => setMessageModalVisible(false)}
+            visible={messageModal.isOpen}
+            onClose={messageModal.close}
             onSend={handleSendTradeRequest}
             cardImage={selectedCardForTrade.image}
             owners={selectedCardForTrade.owners}
@@ -1078,8 +1077,8 @@ const DiscoverTradeCards: React.FC = () => {
 
         {selectedCardForTrade && (
           <TradeOfferCardModal
-            visible={offerModalVisible}
-            onClose={() => setOfferModalVisible(false)}
+            visible={offerModal.isOpen}
+            onClose={offerModal.close}
             cardImage={selectedCardForTrade.image}
             owners={selectedCardForTrade.owners}
             selectedOwner={selectedOwner}

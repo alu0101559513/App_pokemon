@@ -3,8 +3,10 @@ import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer';
 import { authService } from '../services/authService';
 import { authenticatedFetch } from '../utils/fetchHelpers';
+import { safeJsonParse } from '../utils/responseHelpers';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLoadingError } from '../hooks';
 import '../styles/request.css';
 import ConfirmModal from '@/components/ConfirmModal';
 
@@ -43,8 +45,7 @@ const TradeRequestsPage: React.FC = () => {
   const [user, setUser] = useState<any>(authService.getUser());
   const [receivedRequests, setReceivedRequests] = useState<TradeRequest[]>([]);
   const [sentRequests, setSentRequests] = useState<TradeRequest[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { loading, error, startLoading, stopLoading, handleError, clearError } = useLoadingError(true);
   const [confirmModal, setConfirmModal] = useState<{
     title: string;
     message: string;
@@ -77,24 +78,24 @@ const TradeRequestsPage: React.FC = () => {
   const loadRequests = async () => {
     if (!userId) return;
 
-    try {
-      setLoading(true);
-      setError(null);
+    startLoading();
+    clearError();
 
+    try {
       const [recResp, sentResp] = await Promise.all([
         authenticatedFetch(`/trade-requests/received/${userId}`),
         authenticatedFetch(`/trade-requests/sent/${userId}`),
       ]);
 
       if (!recResp.ok) {
-        const data = await recResp.json().catch(() => ({}));
+        const data = await safeJsonParse<{ error?: string }>(recResp);
         throw new Error(
           data.error ||
             t('tradeReq.errorReceived', 'Error loading received requests.')
         );
       }
       if (!sentResp.ok) {
-        const data = await sentResp.json().catch(() => ({}));
+        const data = await safeJsonParse<{ error?: string }>(sentResp);
         throw new Error(
           data.error || t('tradeReq.errorSent', 'Error loading sent requests.')
         );
@@ -113,15 +114,15 @@ const TradeRequestsPage: React.FC = () => {
           'An error occurred while loading trade requests.'
         );
 
+      handleError(msg);
+
       setConfirmModal({
         title: t('common.error', 'Error'),
         message: msg,
         variant: 'error',
       });
-
-      setError(msg);
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   };
 
@@ -182,7 +183,7 @@ const TradeRequestsPage: React.FC = () => {
         }
       );
 
-      const data = await resp.json().catch(() => ({}));
+      const data = await safeJsonParse<{ error?: string; privateRoomCode?: string }>(resp);
 
       if (!resp.ok) throw new Error(data.error || t('tradeReq.errorAccept'));
 
@@ -215,7 +216,7 @@ const TradeRequestsPage: React.FC = () => {
         }
       );
 
-      const data = await resp.json().catch(() => ({}));
+      const data = await safeJsonParse<{ error?: string }>(resp);
       if (!resp.ok) throw new Error(data.error || t('tradeReq.errorReject'));
 
       setConfirmModal({
@@ -242,7 +243,7 @@ const TradeRequestsPage: React.FC = () => {
         }
       );
 
-      const data = await resp.json().catch(() => ({}));
+      const data = await safeJsonParse<{ error?: string }>(resp);
       if (!resp.ok) throw new Error(data.error || t('tradeReq.errorCancel'));
 
       setConfirmModal({

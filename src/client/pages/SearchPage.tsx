@@ -14,6 +14,7 @@ import {
 import { authService } from '../services/authService';
 import { RootState, AppDispatch } from '../store/store';
 import { useSearchParams } from 'react-router-dom';
+import { useLoadingError } from '../hooks';
 
 const PAGE_SIZE = 12;
 
@@ -39,7 +40,7 @@ const SearchPage: React.FC = () => {
   const [results, setResults] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const { loading, error, startLoading, stopLoading, handleError } = useLoadingError();
   const [selectedSet, setSelectedSet] = useState('');
   const [selectedRarity, setSelectedRarity] = useState('');
   const [allSets, setAllSets] = useState<Array<{ id: string; name: string }>>(
@@ -76,7 +77,7 @@ const SearchPage: React.FC = () => {
         setTotal(0);
         return;
       }
-      setLoading(true);
+      startLoading();
       try {
         const resp = await api.searchTcgCards(
           query,
@@ -88,9 +89,11 @@ const SearchPage: React.FC = () => {
         setResults(resp.data || []);
         setTotal(resp.total || 0);
       } catch (e) {
-        // ignore
+        handleError(e);
+        setResults([]);
+        setTotal(0);
       } finally {
-        setLoading(false);
+        stopLoading();
       }
     };
     load();
@@ -236,6 +239,10 @@ const SearchPage: React.FC = () => {
 
         {loading ? (
           <div className="collection-empty">{t('common.loading')}</div>
+        ) : error ? (
+          <div className="collection-empty" style={{ color: 'var(--error-color)' }}>
+            {error}
+          </div>
         ) : results.length === 0 ? (
           <div className="collection-empty">{t('common.noResults')}</div>
         ) : (

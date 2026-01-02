@@ -3,7 +3,7 @@ import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer';
 import { initSocket } from '../socket';
 import { authService } from '../services/authService';
-import { authenticatedFetch, getAuthHeaders } from '../utils/fetchHelpers';
+import { authenticatedFetch } from '../utils/fetchHelpers';
 import '../styles/friends.css';
 import { useTranslation } from 'react-i18next';
 

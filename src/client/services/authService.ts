@@ -154,7 +154,7 @@ export const authService = {
    * Elimina la cuenta del usuario
    */
   async deleteAccount(username: string): Promise<void> {
-    const response = await fetch(`${API_URL}/users/${username}`, {
+    const response = await fetch(`${API_BASE_URL}/users/${username}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

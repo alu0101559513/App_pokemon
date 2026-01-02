@@ -2,6 +2,7 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '../store/store';
 import { normalizeImageUrl } from '../utils/imageHelpers';
+import { getCardImage } from '../utils/cardHelpers';
 import { API_BASE_URL } from '../config/constants';
 import {
   addToWishlist,
@@ -10,6 +11,7 @@ import {
 import { authService } from '../services/authService';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useLoadingError } from '../hooks';
 import '../styles/feature.css';
 
 interface Card {
@@ -47,17 +49,16 @@ const FeaturedCards: React.FC = () => {
   ];
 
   const [featuredCards, setFeaturedCards] = React.useState<Card[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
+  const { loading, error, startLoading, stopLoading, handleError } = useLoadingError(true);
   const [wishlistSet, setWishlistSet] = React.useState<Set<string>>(new Set());
 
   React.useEffect(() => {
     let mounted = true;
 
     async function fetchCards() {
+      startLoading();
+      
       try {
-        setLoading(true);
-        
         // Usar el nuevo endpoint /cards/featured que obtiene cartas directamente de TCGdex
         const resp = await fetch(`${API_BASE_URL}/cards/featured`);
         if (!resp.ok) {
@@ -73,24 +74,13 @@ const FeaturedCards: React.FC = () => {
           .filter((c: any) => c != null)
           .map((c: any) => {
             const id = c.pokemonTcgId || c._id || c.id || '';
-            let rawImage =
-              (c.images && (c.images.large || c.images.small)) ||
-              c.imageUrl ||
-              c.image ||
-              '';
             
-            // Generar URL de TCGdex como fallback si no hay imagen
-            if (!rawImage && id) {
-              const [setCode, number] = id.split('-');
-              if (setCode && number) {
-                // Detectar si es carta japonesa (me, sv, etc.) o inglesa
-                const isJapanese = /^(me|sv|s|k|p|sm|xy)/i.test(setCode);
-                const lang = isJapanese ? 'jp' : 'en';
-                // Para cartas japonesas, extraer el código numérico
-                const cleanSetCode = setCode.toLowerCase();
-                rawImage = `https://assets.tcgdex.net/${lang}/${cleanSetCode}/${number}/high.png`;
-              }
-            }
+            // Usar helper para obtener la mejor imagen disponible
+            const rawImage = getCardImage(
+              c.images,
+              id,
+              c.imageUrl || c.image
+            );
 
           const setName =
             c.set?.name || c.set?.series || c.set || c.series || '';
@@ -149,12 +139,11 @@ const FeaturedCards: React.FC = () => {
         });
 
         setFeaturedCards(normalized);
-        setError(null);
       } catch (err: any) {
         console.error('Error fetching featured cards:', err);
-        if (mounted) setError(err.message ?? String(err));
+        if (mounted) handleError(err);
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) stopLoading();
       }
     }
 

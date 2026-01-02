@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Socket } from 'socket.io-client';
 import { initSocket } from '../socket';
 import { normalizeImageUrl } from '../utils/imageHelpers';
+import { getCardImage } from '../utils/cardHelpers';
 import { authenticatedFetch } from '../utils/fetchHelpers';
 import { API_BASE_URL } from '../config/constants';
 import Header from '../components/Header/Header';
@@ -159,24 +160,15 @@ const TradePage: React.FC = () => {
 
         const normalized: UserCard[] = (data.cards || []).map((item: any) => {
           const card = item.cardId || {};
-
-          let image = card.imageUrl || card.imageUrlHiRes || card.image || '';
-          if (!image && card.images) {
-            image = card.images.large || card.images.small || '';
-          }
-
           const pokemonTcgId = item.pokemonTcgId || card.pokemonTcgId || '';
 
-          if (!image && pokemonTcgId) {
-            const [setCode, number] = pokemonTcgId.split('-');
-            if (setCode && number) {
-              // Usar normalizeImageUrl para corregir cualquier problema con la URL
-              image = normalizeImageUrl(`https://assets.tcgdex.net/en/${setCode}/${number}/high.png`);
-            }
-          } else {
-            // Normalizar la imagen que ya tenemos
-            image = normalizeImageUrl(image);
-          }
+          // Usar helper para obtener la mejor imagen disponible
+          const rawImage = getCardImage(
+            card.images,
+            pokemonTcgId,
+            card.imageUrl || card.imageUrlHiRes || card.image
+          );
+          const image = normalizeImageUrl(rawImage);
 
           return {
             id: item._id || card._id || card.id || pokemonTcgId || '',
